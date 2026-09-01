@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@400;500;600&display=swap");
 
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,18 +8,25 @@
 }
 
 :root {
-  --color-bg: #faf8f5;
-  --color-bg-alt: #f3ede4;
-  --color-text: #2b2620;
-  --color-text-muted: #6b6459;
-  --color-accent: #c1652f;
-  --color-accent-dark: #9c4e22;
-  --color-border: #e3dcd0;
+  --color-bg: #faf8f3;
+  --color-bg-alt: #f0ece2;
+  --color-text: #1f2e2a;
+  --color-text-muted: #5c6b63;
+
+  --color-teal: #1c3a36;
+  --color-teal-dark: #12241f;
+  --color-terracotta: #b6642d;
+  --color-terracotta-dark: #934f22;
+  --color-sage: #7c9473;
+
+  --color-accent: var(--color-terracotta);
+  --color-accent-dark: var(--color-terracotta-dark);
+  --color-border: #e0d9c9;
+
   --font-display: "Playfair Display", serif;
   --font-body: "Inter", sans-serif;
   --max-width: 1200px;
 }
-
 body {
   font-family: var(--font-body);
   color: var(--color-text);
@@ -293,7 +301,11 @@ ul {
   text-align: center;
   max-width: 720px;
   margin: 0 auto;
-  padding: 90px 0 60px;
+  padding: 70px 0 60px;
+}
+.vision-header img {
+  height: 64px;
+  margin-bottom: 24px;
 }
 .vision-header h1 {
   font-size: 2.75rem;
@@ -538,4 +550,60 @@ ul {
   .spotlight-grid {
     grid-template-columns: 1fr;
   }
+}
+/* Use teal for headings occasionally to echo the logo's dark ring */
+.section-header h2 {
+  color: var(--color-teal);
+}
+.hero .eyebrow {
+  color: var(--color-sage);
+}
+
+/* Sage variant button, for secondary creator-facing CTAs */
+.btn--sage {
+  background: var(--color-sage);
+  color: #fff;
+}
+.btn--sage:hover {
+  background: #6a8060;
+  color: #fff;
+}
+
+/* CTA banner now uses teal instead of terracotta, terracotta reserved for buttons */
+.cta-banner {
+  background: var(--color-teal);
+}
+.cta-banner .btn--primary {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.cta-banner .btn--secondary {
+  color: var(--color-teal-dark);
+}
+
+/* Logo lockup in navbar */
+.logo-lockup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo-lockup img {
+  height: 40px;
+  width: auto;
+}
+.logo-lockup span {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-teal);
+}
+.logo-lockup span em {
+  font-style: normal;
+  color: var(--color-terracotta);
+}
+.benefit-card:nth-child(1) {
+  border-left: 4px solid var(--color-terracotta);
+}
+.benefit-card:nth-child(2) {
+  border-left: 4px solid var(--color-sage);
 }

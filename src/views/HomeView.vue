@@ -3,8 +3,8 @@
     <!-- 1. HERO -->
     <header class="hero">
       <div>
-        <span class="eyebrow">South African Multi-Vendor Marketplace</span>
-        <h1>Discover Unique Handmade Craftsmanship</h1>
+          <span class="eyebrow">Create · Connect · Thrive</span>
+          <h1>Discover Unique Handmade Craftsmanship</h1>
         <p>
           Connect directly with independent local artists, crafters, and makers.
           Shop authentic, high-quality products or commission custom creations

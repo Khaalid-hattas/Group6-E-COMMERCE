@@ -5,6 +5,7 @@
 
     <!-- 1. VISION HEADER -->
     <header class="vision-header">
+      <img src="../images/logo.png" alt="CraftSphere logo" />
       <span class="eyebrow">Our Mission & Vision</span>
       <h1>Bridging the Gap for Independent South African Creators</h1>
       <p>
@@ -13,11 +14,10 @@
         crafters, and makers who create them.
       </p>
     </header>
-
     <!-- IMAGE + STORY SPLIT (mirrors homepage hero layout) -->
     <section class="about-hero">
       <img
-        src="https://source.unsplash.com/800x1000/?artisan,workshop,handmade"
+        src="https://api.buildingsandmoreng.com/storage/4072/IMG-20220326-WA0000.jpg"
         alt="Local artisan at work"
       />
       <div class="about-hero-text">
@@ -160,6 +160,7 @@
 
 <script setup>
 import { ref } from "vue";
+import logo from "../images/logo.png";
 
 const teamMembers = ref([
   {
@@ -167,14 +168,14 @@ const teamMembers = ref([
     role: "UI Designers & Full-Stack Integration Developers",
     responsibilities:
       "UI & Layout Integration, User Account Onboarding, JWT Authentication, and Global Database Schemas.",
-    avatar: "https://i.pravatar.cc/150?img=12",
+    avatar: "",
   },
   {
     name: "Khaalid & Phumzile",
     role: "Product, Order & Database Developers",
     responsibilities:
       "Core Product Listings, Creator Catalog Directories, Shopping Cart Operations, Payment Simulation API, and Checkout Management.",
-    avatar: "https://i.pravatar.cc/150?img=33",
+    avatar: "",
   },
 ]);
 </script>
