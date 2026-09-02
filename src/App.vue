@@ -1,18 +1,26 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
+import Footer from "./components/Footer.vue";
+import Navbar from "./components/Navbar.vue";
 </script>
 
 <template>
-  <header>
-    <nav>
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/about">About</RouterLink>
-      <RouterLink to="/" class="logo-lockup">
-        <img src="./images/logo.png" alt="CraftSphere logo" />
-        <span>Craft<em>Sphere</em></span>
-      </RouterLink>
-    </nav>
-  </header>
-
-  <RouterView />
+  <div class="app-shell">
+    <Navbar />
+    <main class="page-content">
+      <RouterView />
+    </main>
+    <Footer />
+  </div>
 </template>
+
+<style scoped>
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  flex: 1;
+}
+</style>

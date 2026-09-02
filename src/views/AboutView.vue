@@ -179,3 +179,66 @@ const teamMembers = ref([
   },
 ]);
 </script>
+
+<style scoped>
+.vision-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 56px 0 24px;
+}
+
+.vision-header img {
+  display: block;
+  width: 220px;
+  height: 220px;
+  object-fit: contain;
+  margin: 0 auto 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 18px 40px rgba(28, 58, 54, 0.12);
+  filter: drop-shadow(0 8px 12px rgba(28, 58, 54, 0.12));
+}
+
+.vision-header h1 {
+  max-width: 820px;
+  margin-bottom: 16px;
+}
+
+.vision-header p {
+  max-width: 760px;
+  color: #5c6b63;
+}
+
+.about-hero {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 32px;
+  align-items: center;
+  padding: 28px 0 32px;
+}
+
+.about-hero img {
+  width: 100%;
+  height: 420px;
+  object-fit: cover;
+  border-radius: 18px;
+  box-shadow: 0 24px 42px rgba(28, 58, 54, 0.12);
+}
+
+.about-hero-text {
+  padding: 8px 0;
+}
+
+@media (max-width: 820px) {
+  .about-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .vision-header img {
+    width: 170px;
+    height: 170px;
+  }
+}
+</style>

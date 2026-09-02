@@ -72,7 +72,6 @@
             niches.
           </p>
         </div>
-        <router-link to="/marketplace">View All Categories &rarr;</router-link>
       </div>
 
       <div class="category-grid">
@@ -212,10 +211,6 @@ const categories = ref([
     image:
       "https://www.dreamywalls.com/cdn/shop/articles/thumbnail_767e2183-4d15-4a09-8cc4-3292fd2bf6a5.jpg?v=1752759709",
   },
-  {
-    name: "glassware",
-    image:
-      "https://loncastudio.com/wp-content/uploads/2025/02/el-yapimi-vazo.webp",
-  },
+  
 ]);
 </script>
