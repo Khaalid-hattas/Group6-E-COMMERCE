@@ -3,8 +3,8 @@
     <!-- 1. HERO -->
     <header class="hero">
       <div>
-          <span class="eyebrow">Create · Connect · Thrive</span>
-          <h1>Discover Unique Handmade Craftsmanship</h1>
+        <span class="eyebrow">Create · Connect · Thrive</span>
+        <h1>Discover Unique Handmade Craftsmanship</h1>
         <p>
           Connect directly with independent local artists, crafters, and makers.
           Shop authentic, high-quality products or commission custom creations
@@ -38,26 +38,16 @@
       </div>
 
       <div class="pillar-grid">
-        <div class="pillar-card">
-          <h3>Creator Discovery</h3>
-          <p>
-            Explore detailed storefronts, stories, and background portfolios of
-            verified independent local artisans before you purchase.
-          </p>
-        </div>
-        <div class="pillar-card">
-          <h3>Direct Purchasing</h3>
-          <p>
-            Safely add authentic products directly to a secure shopping cart
-            with fully simulated secure payment processing workflows.
-          </p>
-        </div>
-        <div class="pillar-card">
-          <h3>Bespoke Requests</h3>
-          <p>
-            Submit personalized digital briefs to independent makers, negotiate
-            project estimates, and commission entirely custom-made items.
-          </p>
+        <div
+          v-for="(pillar, index) in pillars"
+          :key="pillar.title"
+          class="pillar-card motion-card"
+          :style="{ '--card-delay': `${index * 120}ms` }"
+          @pointermove="handleCardPointerMove"
+          @pointerleave="resetCardPointer"
+        >
+          <h3>{{ pillar.title }}</h3>
+          <p>{{ pillar.description }}</p>
         </div>
       </div>
     </section>
@@ -75,14 +65,18 @@
       </div>
 
       <div class="category-grid">
-        <div
-          v-for="category in categories"
+        <RouterLink
+          v-for="(category, index) in categories"
           :key="category.name"
-          class="category-card"
+          class="category-card motion-card"
+          :style="{ '--card-delay': `${index * 120}ms` }"
+          :to="{ path: '/marketplace', query: { category: category.name } }"
+          @pointermove="handleCardPointerMove"
+          @pointerleave="resetCardPointer"
         >
           <img :src="category.image" :alt="category.name" />
           <span>{{ category.name }}</span>
-        </div>
+        </RouterLink>
       </div>
     </section>
 
@@ -193,7 +187,44 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
+
+let cardObserver;
+
+const pillars = [
+  {
+    title: "Creator Discovery",
+    description:
+      "Explore detailed storefronts, stories, and background portfolios of verified independent local artisans before you purchase.",
+  },
+  {
+    title: "Direct Purchasing",
+    description:
+      "Safely add authentic products directly to a secure shopping cart with fully simulated secure payment processing workflows.",
+  },
+  {
+    title: "Bespoke Requests",
+    description:
+      "Submit personalized digital briefs to independent makers, negotiate project estimates, and commission entirely custom-made items.",
+  },
+];
+
+function handleCardPointerMove(event) {
+  const card = event.currentTarget;
+  const bounds = card.getBoundingClientRect();
+  const rotateX = ((event.clientY - bounds.top) / bounds.height - 0.5) * -5;
+  const rotateY = ((event.clientX - bounds.left) / bounds.width - 0.5) * 5;
+
+  card.style.setProperty("--rotate-x", `${rotateX}deg`);
+  card.style.setProperty("--rotate-y", `${rotateY}deg`);
+  card.style.setProperty("--glow-x", `${event.clientX - bounds.left}px`);
+  card.style.setProperty("--glow-y", `${event.clientY - bounds.top}px`);
+}
+
+function resetCardPointer(event) {
+  event.currentTarget.style.setProperty("--rotate-x", "0deg");
+  event.currentTarget.style.setProperty("--rotate-y", "0deg");
+}
 
 const categories = ref([
   {
@@ -211,6 +242,31 @@ const categories = ref([
     image:
       "https://www.dreamywalls.com/cdn/shop/articles/thumbnail_767e2183-4d15-4a09-8cc4-3292fd2bf6a5.jpg?v=1752759709",
   },
-  
 ]);
+
+onMounted(() => {
+  const cards = document.querySelectorAll(".motion-card");
+  cards.forEach((card) => card.classList.add("motion-ready"));
+
+  if (!("IntersectionObserver" in window)) {
+    cards.forEach((card) => card.classList.add("is-visible"));
+    return;
+  }
+
+  cardObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          cardObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.2 },
+  );
+
+  cards.forEach((card) => cardObserver.observe(card));
+});
+
+onUnmounted(() => cardObserver?.disconnect());
 </script>
