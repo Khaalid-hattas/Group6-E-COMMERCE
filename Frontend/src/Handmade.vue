@@ -137,6 +137,14 @@ function addToCart(product) {
   cartOpen.value = true;
 }
 
+function increaseQuantity(product) {
+  const existing = cartItems.value.find((item) => item.name === product.name);
+  if (existing) {
+    existing.quantity += 1;
+    cartCount.value += 1;
+  }
+}
+
 function removeFromCart(product) {
   const existing = cartItems.value.find((item) => item.name === product.name);
   if (!existing) return;
@@ -175,10 +183,9 @@ const cartTotal = computed(() =>
         /><span class="search-icon">⌕</span></label
       >
       <nav class="main-nav" aria-label="Main navigation">
-        <a href="#handmade">Handcrafted</a
+        <a href="#handcraft">Handcrafted</a
         ><a class="active" href="#handmade">Handmade</a
-        ><a href="#handmade">Artwork</a>
-        <a href="#creators">Creators</a
+        ><a href="#artwork">Artwork</a> <a href="#creators">Creators</a
         ><a href="#about">About Us</a>
       </nav>
       <button
@@ -208,8 +215,24 @@ const cartTotal = computed(() =>
           <div>
             <p>{{ item.name }}</p>
             <small>{{ item.type }} · Qty {{ item.quantity }}</small
-            ><strong>{{ item.price }}</strong
-            ><button type="button" @click="removeFromCart(item)">Remove</button>
+            ><strong>{{ item.price }}</strong>
+            <div class="quantity-controls">
+              <button
+                type="button"
+                aria-label="Decrease quantity"
+                @click="removeFromCart(item)"
+              >
+                −
+              </button>
+              <span>{{ item.quantity }}</span>
+              <button
+                type="button"
+                aria-label="Increase quantity"
+                @click="increaseQuantity(item)"
+              >
+                +
+              </button>
+            </div>
           </div>
         </article>
       </div>
@@ -490,6 +513,28 @@ const cartTotal = computed(() =>
   color: #997b69;
   background: transparent;
   text-decoration: underline;
+}
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.quantity-controls button {
+  width: 28px;
+  height: 28px;
+  margin: 0;
+  border: 1px solid #ded5c7;
+  color: #8f3f1c;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  text-decoration: none;
+}
+.quantity-controls span {
+  min-width: 16px;
+  color: #160a06;
+  text-align: center;
 }
 .empty-bag {
   margin: auto;

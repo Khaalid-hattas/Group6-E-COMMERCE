@@ -6,6 +6,7 @@ const selectedCreator = ref(null);
 const requestCreator = ref(null);
 const submitted = ref(false);
 const bagOpen = ref(false);
+const cartItems = ref([]);
 
 const creators = [
   {
@@ -174,6 +175,15 @@ function openRequest(creator) {
   submitted.value = false;
 }
 
+function changeQuantity(item, amount) {
+  item.quantity += amount;
+  if (item.quantity <= 0) {
+    cartItems.value = cartItems.value.filter(
+      (cartItem) => cartItem.name !== item.name,
+    );
+  }
+}
+
 function submitRequest() {
   submitted.value = true;
 }
@@ -196,8 +206,9 @@ function submitRequest() {
         /><span class="search-icon">⌕</span></label
       >
       <nav class="main-nav" aria-label="Main navigation">
-        <a href="#handmade">Handcrafted</a>
-        <a href="#handmade">Handmade</a><a href="#handmade">Artwork</a
+        <a href="#handcraft">Handcrafted</a>
+        <a href="#handmade">Handmade</a>
+        <a href="#artwork">Artwork</a
         ><a class="active" href="#creators">Creators</a
         ><a href="#about">About Us</a>
       </nav>
@@ -223,7 +234,31 @@ function submitRequest() {
           ×
         </button>
       </div>
-      <div class="empty-bag">
+      <div v-if="cartItems.length" class="bag-list">
+        <article v-for="item in cartItems" :key="item.name" class="bag-item">
+          <p>{{ item.name }}</p>
+          <small>{{ item.type }}</small>
+          <strong>{{ item.price }}</strong>
+          <div class="quantity-controls">
+            <button
+              type="button"
+              aria-label="Decrease quantity"
+              @click="changeQuantity(item, -1)"
+            >
+              −
+            </button>
+            <span>{{ item.quantity }}</span>
+            <button
+              type="button"
+              aria-label="Increase quantity"
+              @click="changeQuantity(item, 1)"
+            >
+              +
+            </button>
+          </div>
+        </article>
+      </div>
+      <div v-else class="empty-bag">
         <p>Your bag is empty.</p>
         <button type="button" @click="bagOpen = false">
           Continue shopping
@@ -1128,6 +1163,50 @@ function submitRequest() {
   margin: auto;
   color: var(--muted);
   font-size: 18px;
+  text-align: center;
+}
+.bag-list {
+  overflow: auto;
+  padding: 20px 28px;
+}
+.bag-item {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.bag-item p {
+  margin: 3px 0 8px;
+  color: var(--rust);
+  font:
+    700 18px Georgia,
+    serif;
+}
+.bag-item small {
+  display: block;
+  margin-bottom: 12px;
+  color: var(--muted);
+}
+.bag-item strong {
+  display: block;
+  font-size: 17px;
+}
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+.quantity-controls button {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--line);
+  color: var(--rust);
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+.quantity-controls span {
+  min-width: 16px;
+  color: var(--ink);
   text-align: center;
 }
 .empty-bag button {
