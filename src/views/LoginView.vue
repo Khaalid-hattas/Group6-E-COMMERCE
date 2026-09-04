@@ -15,7 +15,7 @@
 
       <div class="auth-card">
         <h1>Log In</h1>
-        <p class="auth-subtitle">Access your CraftSphere account.</p>
+        <p class="auth-subtitle">Access your ArtisanHub account.</p>
 
         <div class="role-toggle">
           <button

@@ -16,7 +16,7 @@
       <div class="auth-card">
         <h1>Create Your Account</h1>
         <p class="auth-subtitle">
-          Join CraftSphere as a buyer or start selling your craft.
+          Join ArtisanHub as a buyer or start selling your craft.
         </p>
 
         <div class="role-toggle">

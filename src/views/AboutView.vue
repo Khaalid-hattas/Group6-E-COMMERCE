@@ -196,9 +196,9 @@ const teamMembers = ref([
   object-fit: contain;
   margin: 0 auto 20px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 18px 40px rgba(28, 58, 54, 0.12);
-  filter: drop-shadow(0 8px 12px rgba(28, 58, 54, 0.12));
+  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 18px 40px rgba(28, 20, 15, 0.14);
+  filter: drop-shadow(0 8px 12px rgba(28, 20, 15, 0.12));
 }
 
 .vision-header h1 {
@@ -208,7 +208,7 @@ const teamMembers = ref([
 
 .vision-header p {
   max-width: 760px;
-  color: #5c6b63;
+  color: var(--color-text-muted);
 }
 
 .about-hero {
@@ -223,8 +223,8 @@ const teamMembers = ref([
   width: 100%;
   height: 420px;
   object-fit: cover;
-  border-radius: 18px;
-  box-shadow: 0 24px 42px rgba(28, 58, 54, 0.12);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 42px rgba(28, 20, 15, 0.14);
 }
 
 .about-hero-text {
