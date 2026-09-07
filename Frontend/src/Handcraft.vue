@@ -104,6 +104,61 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=900&q=85",
   },
+  {
+    name: "Speckled Stoneware Mug",
+    maker: "ELENA VASQUEZ · OAXACA, MX",
+    type: "KITCHENWARE",
+    material: "Wheel-thrown · 350ml",
+    price: 96,
+    note: "A warm, everyday mug finished with a softly speckled reduction glaze.",
+    badge: "NEW",
+    image:
+      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    name: "Hand-carved Bread Knife",
+    maker: "JAMES OKORO · PORTLAND, OR",
+    type: "KITCHENWARE",
+    material: "Walnut handle · Carbon steel",
+    price: 275,
+    note: "Balanced for daily use with a hand-shaped walnut handle and serrated edge.",
+    badge: "HANDCRAFTED",
+    image:
+      "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    name: "River-glaze Serving Platter",
+    maker: "MIKA TANAKA · KYOTO, JP",
+    type: "KITCHENWARE",
+    material: "Ash glaze · 36cm wide",
+    price: 260,
+    note: "A generous serving piece with a hand-painted blue-grey river glaze.",
+    badge: "LIMITED",
+    image:
+      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    name: "Reclaimed Linen Table Runner",
+    maker: "SOFIA REYES · BARCELONA, ES",
+    type: "RECYCLED CRAFTS",
+    material: "Reclaimed linen · 180cm",
+    price: 145,
+    note: "Woven from rescued linen fibres and finished with a naturally frayed edge.",
+    badge: "RECYCLED",
+    image:
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=85",
+  },
+  {
+    name: "Terracotta Herb Planter",
+    maker: "LENA BAUER · BERLIN, DE",
+    type: "RECYCLED CRAFTS",
+    material: "Hand-shaped clay · Drainage hole",
+    price: 175,
+    note: "A porous terracotta planter made for kitchen herbs, windowsills and slow living.",
+    badge: "POPULAR",
+    image:
+      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85",
+  },
 ];
 
 const filteredProducts = computed(() =>
@@ -254,8 +309,18 @@ function removeItem(item) {
           </ul>
         </div>
         <div class="hero-images">
-          <div class="hero-image hero-image-pottery"></div>
-          <div class="hero-image hero-image-macrame"></div>
+          <div class="hero-image hero-image-pottery">
+            <img
+              src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=900&q=85"
+              alt="Handcrafted pottery vessels"
+            />
+          </div>
+          <div class="hero-image hero-image-goods">
+            <img
+              src="https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=900&q=85"
+              alt="Handcrafted pottery and home goods"
+            />
+          </div>
         </div>
       </section>
       <section class="maker-section">
@@ -518,15 +583,40 @@ function removeItem(item) {
   gap: 14px;
 }
 .hero-image {
+  position: relative;
   height: 464px;
+  overflow: hidden;
   background-position: center;
   background-size: cover;
 }
-.hero-image-pottery {
-  background-image: url("https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=700&q=85");
+.hero-image::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(180deg, rgba(243, 238, 228, 0.05), rgba(22, 10, 6, 0.16));
+  pointer-events: none;
 }
-.hero-image-macrame {
-  background-image: url("https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=700&q=85");
+.hero-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  opacity: 0.92;
+  animation: hero-image-fade 7s ease-in-out infinite alternate;
+}
+.hero-image-goods img {
+  animation-delay: -3.5s;
+}
+@keyframes hero-image-fade {
+  0%,
+  100% {
+    opacity: 0.68;
+    transform: scale(1.02);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
 }
 .maker-section {
   padding: 58px 11.5% 72px;
@@ -560,9 +650,10 @@ function removeItem(item) {
   font-size: 14px;
 }
 .product-section {
-  max-width: 1500px;
+  width: 100%;
+  max-width: none;
   margin: auto;
-  padding: 75px 11.5% 105px;
+  padding: 75px 2.3% 105px;
 }
 .section-heading {
   display: flex;
@@ -601,8 +692,8 @@ function removeItem(item) {
 }
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 38px 22px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 42px 30px;
 }
 .product-image {
   position: relative;
@@ -881,13 +972,12 @@ function removeItem(item) {
   }
   .craft-hero,
   .maker-section,
-  .product-section,
   .site-footer {
     padding-right: 4%;
     padding-left: 4%;
   }
   .product-grid {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 @media (max-width: 700px) {
@@ -931,7 +1021,7 @@ function removeItem(item) {
     height: 190px;
   }
   .product-section {
-    padding: 55px 18px 75px;
+    padding: 55px 2.3% 75px;
   }
   .section-heading {
     display: block;
@@ -946,6 +1036,7 @@ function removeItem(item) {
     padding: 11px 13px;
   }
   .product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 35px 14px;
   }
   .product-image {

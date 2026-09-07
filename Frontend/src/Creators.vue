@@ -10,9 +10,9 @@ const cartItems = ref([]);
 
 const creators = [
   {
-    name: "Elena Vasquez",
+    name: "Amahle Ndlovu",
     role: "Ceramicist",
-    location: "OAXACA, MX",
+    location: "JOHANNESBURG, ZA",
     image:
       "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=1000&q=85",
     avatar:
@@ -24,14 +24,14 @@ const creators = [
     rating: "4.9",
     reviews: 286,
     tags: ["KITCHENWARE", "ORNAMENTS", "SCULPTURAL VESSELS"],
-    bio: "Elena learned to throw on a salvaged wheel in her grandmother's kitchen in Oaxaca. Fourteen years later her practice blends traditional forms with a quiet, modern sensibility.",
+    bio: "Amahle learned to throw on a salvaged wheel in her grandmother's kitchen in Johannesburg. Fourteen years later her practice blends traditional forms with a quiet, modern sensibility.",
     lead: "3–5 weeks",
     from: "£85",
   },
   {
-    name: "Mika Tanaka",
+    name: "Thabo Mokoena",
     role: "Ceramic Artist",
-    location: "KYOTO, JP",
+    location: "CAPE TOWN, ZA",
     image:
       "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1000&q=85",
     avatar:
@@ -43,14 +43,14 @@ const creators = [
     rating: "4.8",
     reviews: 167,
     tags: ["ASH-GLAZE CERAMICS", "TEA WARE", "ORNAMENTAL TOTEMS"],
-    bio: "Mika is the third generation of the Tanaka family to practice ash-glaze ceramics in Kyoto. Her work is rooted in patience, balance, and the beauty of everyday rituals.",
+    bio: "Thabo is the third generation of the Mokoena family to practice ash-glaze ceramics in Cape Town. His work is rooted in patience, balance, and the beauty of everyday rituals.",
     lead: "4–6 weeks",
     from: "£95",
   },
   {
-    name: "Sofia Reyes",
+    name: "Lerato Dlamini",
     role: "Fibre Artist",
-    location: "BARCELONA, ES",
+    location: "DURBAN, ZA",
     image:
       "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=1000&q=85",
     avatar:
@@ -62,14 +62,14 @@ const creators = [
     rating: "4.8",
     reviews: 204,
     tags: ["MACRAMÉ", "WOVEN ORNAMENTS", "PLANT HANGERS"],
-    bio: "Sofia came to macramé through a zero-waste fashion background. Every material she uses is either reclaimed, post-industrial offcut, or naturally dyed. She has developed her own knotting language — patterns she's never published — which gives her work an instantly recognisable texture.",
+    bio: "Lerato came to macramé through a zero-waste fashion background. Every material she uses is either reclaimed, post-industrial offcut, or naturally dyed. She has developed her own knotting language — patterns she's never published — which gives her work an instantly recognisable texture.",
     lead: "4–5 weeks",
     from: "£65",
   },
   {
-    name: "James Okoro",
+    name: "Sipho Khumalo",
     role: "Woodworker",
-    location: "PORTLAND, OR",
+    location: "PRETORIA, ZA",
     image:
       "https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=1000&q=85",
     avatar:
@@ -81,14 +81,14 @@ const creators = [
     rating: "4.9",
     reviews: 91,
     tags: ["KITCHENWARE", "CUTTING BOARDS", "SERVING VESSELS"],
-    bio: "James sources every plank himself from certified sustainable forests in the Pacific Northwest. He refuses shortcuts, allowing the grain and character of each piece to lead the design.",
+    bio: "Sipho sources every plank himself from certified sustainable forests across South Africa. He refuses shortcuts, allowing the grain and character of each piece to lead the design.",
     lead: "3–4 weeks",
     from: "£70",
   },
   {
-    name: "Priya Nair",
+    name: "Naledi van der Merwe",
     role: "Silversmith",
-    location: "JAIPUR, IN",
+    location: "GQEBERHA, ZA",
     image:
       "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1000&q=85",
     avatar:
@@ -100,14 +100,14 @@ const creators = [
     rating: "4.9",
     reviews: 175,
     tags: ["SILVER JEWELLERY", "GOLD VERMEIL", "BESPOKE COMMISSIONS"],
-    bio: "Priya trained at the Jaipur School of Arts before spending two years in London studying hallmarking and alloy work. Her jewellery combines precise metalwork with the spirit of Rajasthan.",
+    bio: "Naledi trained in Johannesburg before spending two years studying hallmarking and alloy work. Her jewellery combines precise metalwork with the spirit of South Africa.",
     lead: "2–4 weeks",
     from: "£90",
   },
   {
-    name: "Tahlia Moore",
+    name: "Zanele Mthembu",
     role: "Jeweller",
-    location: "MELBOURNE, AU",
+    location: "STELLENBOSCH, ZA",
     image:
       "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=1000&q=85",
     avatar:
@@ -119,16 +119,15 @@ const creators = [
     rating: "4.8",
     reviews: 139,
     tags: ["RINGS", "EARRINGS", "RAW STONE SETTINGS"],
-    bio: "Tahlia's work is defined by restraint. A silversmith for ten years, she has reduced her vocabulary to a handful of forms that let each stone speak.",
+    bio: "Zanele's work is defined by restraint. A silversmith for ten years, she has reduced her vocabulary to a handful of forms that let each stone speak.",
     lead: "3–6 weeks",
     from: "£75",
   },
   {
-    name: "Camille Renard",
+    name: "",
     role: "Painter",
-    location: "LYON, FR",
-    image:
-      "https://images.unsplash.com/photo-1549490349-8643362247b5?auto=format&fit=crop&w=1000&q=85",
+    location: "",
+    image: "",
     avatar: "",
     featured: true,
     accepting: true,
@@ -142,13 +141,11 @@ const creators = [
     from: "£240",
   },
   {
-    name: "Lena Bauer",
+    name: "",
     role: "Ceramicist & Candle Maker",
-    location: "BERLIN, DE",
-    image:
-      "https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=160&q=85",
+    location: "",
+    image: "",
+    avatar: "",
     featured: false,
     accepting: false,
     years: 6,
@@ -307,14 +304,18 @@ function submitRequest() {
         <div class="creator-grid">
           <article
             v-for="creator in filteredCreators"
-            :key="creator.name"
+              :key="creator.name || creator.role"
             class="creator-card"
           >
             <img
+              v-if="creator.image"
               class="creator-image"
               :src="creator.image"
               :alt="`${creator.name} working`"
             />
+            <div v-else class="creator-image image-placeholder">
+              ADD CREATOR IMAGE
+            </div>
             <div class="creator-content">
               <div class="creator-heading">
                 <img
@@ -420,7 +421,7 @@ function submitRequest() {
           <label
             >PREFERRED CREATOR (OPTIONAL)<select>
               <option>No preference — match me</option>
-              <option v-for="creator in creators" :key="creator.name">
+              <option v-for="creator in creators" :key="creator.name || creator.role">
                 {{ creator.name }} — {{ creator.role }}
               </option>
             </select></label
@@ -836,6 +837,14 @@ function submitRequest() {
   width: 100%;
   height: 325px;
   object-fit: cover;
+}
+.image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: #e1d5c4;
+  letter-spacing: 0.14em;
+  font-size: 13px;
 }
 .creator-content {
   padding: 32px 30px 25px;
