@@ -12,14 +12,14 @@ import {
 } from "./cartStore";
 
 const artworkImages = [
-  new URL("../images/abstractimages.jpeg", import.meta.url).href,
-  new URL("../images/aspire.jpeg", import.meta.url).href,
-  new URL("../images/banana.jpeg", import.meta.url).href,
-  new URL("../images/birthmom.jpeg", import.meta.url).href,
-  new URL("../images/construction.jpeg", import.meta.url).href,
-  new URL("../images/empowering.jpeg", import.meta.url).href,
-  new URL("../images/gogo.jpeg", import.meta.url).href,
-  new URL("../images/women.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/abstractimages.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/aspire.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/banana.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/birthmom.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/construction.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/empowering.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/gogo.jpeg", import.meta.url).href,
+  new URL("../images/Artwork/women.jpeg", import.meta.url).href,
 ];
 
 const activeCategory = ref("ALL");
@@ -116,8 +116,8 @@ const artworks = [
   },
   {
     title: "Botanical Series III",
-    artist: "MEI LIN",
-    location: "TAIPEI, TW",
+    artist: "",
+    location: "",
     medium: "Pigment prints",
     dimensions: "Set of 3, 40 × 60 cm",
     category: "PHOTOGRAPHY",
@@ -130,8 +130,8 @@ const artworks = [
   },
   {
     title: "Burden Study",
-    artist: "KWAME ASANTE",
-    location: "KUMASI, GH",
+    artist: "",
+    location: "",
     medium: "Cast bronze",
     dimensions: "22 × 14 × 10 cm",
     category: "SCULPTURE",
@@ -331,8 +331,8 @@ const cartTotal = computed(() =>
                 artwork.badge
               }}</span>
             </div>
-            <p class="artist-line">
-              {{ artwork.artist }} · {{ artwork.location }}
+            <p v-if="artwork.artist || artwork.location" class="artist-line">
+              {{ [artwork.artist, artwork.location].filter(Boolean).join(" · ") }}
             </p>
             <h2>{{ artwork.title }}</h2>
             <p class="artwork-details">
@@ -418,8 +418,10 @@ const cartTotal = computed(() =>
         <div class="modal-content">
           <p class="kicker">NOW SHOWING</p>
           <h2>{{ selectedArtwork.title }}</h2>
-          <p class="modal-artist">{{ selectedArtwork.artist }}</p>
-          <p>{{ selectedArtwork.location }}</p>
+          <p v-if="selectedArtwork.artist" class="modal-artist">
+            {{ selectedArtwork.artist }}
+          </p>
+          <p v-if="selectedArtwork.location">{{ selectedArtwork.location }}</p>
           <hr />
           <div class="modal-specs">
             <div>

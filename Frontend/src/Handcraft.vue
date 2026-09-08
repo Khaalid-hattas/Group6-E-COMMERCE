@@ -15,157 +15,157 @@ const cartOpen = ref(false);
 
 const makers = [
   {
-    name: "Elena Vasquez",
-    location: "OAXACA, MX",
-    detail: "Reduction-fired stoneware · 14 years",
-    image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=800&q=85",
+    name: "NESTA NALA",
+    piece: "Hand-turned African Vessel Set",
+    location: "KWAZULU-NATAL, ZA",
+    detail: "Handbuilt ceramics · Contemporary African forms",
+    image: new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
   },
   {
-    name: "Mika Tanaka",
-    location: "KYOTO, JP",
-    detail: "Ash-glaze ceramics · 3rd generation",
-    image:
-      "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=800&q=85",
+    name: "Zizipho Poswa",
+    piece: "Hand-painted Ceramic Kitchen Set",
+    location: "CAPE TOWN, ZA",
+    detail: "Ceramics & sculpture · Imiso Ceramics",
+    image: new URL("../images/Handcrafted/kitchenset.jpg", import.meta.url).href,
   },
   {
-    name: "Sofia Reyes",
-    location: "BARCELONA, ES",
-    detail: "Recycled fibre macramé · zero-dye",
-    image:
-      "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=800&q=85",
+    name: "ZIZIPHO POSWA",
+    piece: "Colourful Storyteller Serving Dish",
+    location: " CAPE TOWN, ZA",
+    detail: "Traditional basketry · Handwoven grass vessels",
+    image: new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
   },
   {
-    name: "James Okoro",
-    location: "PORTLAND, OR",
-    detail: "Hand-carved walnut · sustainably sourced",
-    image:
-      "https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=800&q=85",
+    name: "BEAUTY NGXONGO",
+    piece: "Handwoven Basket Set",
+    location: "KWAZULU-NATAL, ZA",
+    detail: "Handmade jewellery · Augenta founder",
+    image: new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
   },
 ];
 
 const products = [
   {
-    name: "Vessel Stoneware Bowl",
-    maker: "ELENA VASQUEZ · OAXACA, MX",
+    name: "Hand-turned African Vessel Set",
+    maker: "NESTA NALA · KWAZULU-NATAL, ZA",
     type: "KITCHENWARE",
-    material: "Hand-thrown · Single piece",
+    material: "Hand-turned clay · 3-piece set",
     price: 148,
-    note: "14 years at the wheel. No two bowls share the same finish.",
+    note: "Three sculptural vessels with burnished surfaces and individual hand-finished marks.",
     badge: "HANDCRAFTED",
     image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
   },
   {
-    name: "Wheel Series Serving Set",
-    maker: "MIKA TANAKA · KYOTO, JP",
-    type: "KITCHENWARE",
-    material: "4-piece · Wheel-thrown",
+    name: "Handwoven Basket Set",
+    maker: "BEAUTY NGXONGO · KWAZULU-NATAL, ZA",
+    type: "RECYCLED CRAFTS",
+    material: "Indigenous fibre · 3-piece set",
     price: 420,
-    note: "An ash-glaze tradition passed through three generations of the Tanaka family.",
+    note: "Nested baskets woven by hand for storage, serving and everyday display.",
     badge: "NEW",
     image:
-      "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
   },
   {
-    name: "Walnut End-grain Board",
-    maker: "JAMES OKORO · PORTLAND, OR",
+    name: "Wood & Woven Coaster Set",
+    maker: "DESIGN AFRIKA WEAVERS · CAPE TOWN, ZA",
     type: "KITCHENWARE",
-    material: 'Hand-carved · 18" × 12"',
-    price: 235,
-    note: "Sustainably harvested Pacific Northwest walnut. Never sanded below 220 grit.",
+    material: "Wood & woven fibre · 6-piece set",
+    price: 950,
+    note: "Warm wooden coasters finished with woven centres and a hand-built holder.",
     badge: "SALE",
-    oldPrice: 280,
+    oldPrice: 680,
     image:
-      "https://images.unsplash.com/photo-1593182440959-9d5165b29e16?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/costerset.jpg", import.meta.url).href,
   },
   {
-    name: "Grove Ceramic Dinnerware",
-    maker: "LENA BAUER · BERLIN, DE",
+    name: "Handcrafted Wooden Desk Organiser",
+    maker: "CARROL BOYES STUDIO · CAPE TOWN, ZA",
     type: "KITCHENWARE",
-    material: "4-setting · Slip-cast",
-    price: 310,
-    note: "Slip-cast in small batches in Lena's Berlin studio. Dishwasher safe.",
+    material: "Solid wood · Phone, watch & key holder",
+    price: 1350,
+    note: "A practical entryway organiser with handmade compartments for daily essentials.",
     badge: "KITCHENWARE",
     image:
-      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/Essential-holder.jpg", import.meta.url).href,
   },
   {
-    name: "Lavender Soy Candle",
-    maker: "LENA BAUER · BERLIN, DE",
-    type: "RECYCLED CRAFTS",
-    material: "200g · 45hr burn",
-    price: 120,
-    note: "Poured into reclaimed glass jars. Refillable — send back, get 20% off.",
+    name: "African Market Tableware Collection",
+    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
+    type: "KITCHENWARE",
+    material: "Hand-painted ceramic · Mixed set",
+    price: 1200,
+    note: "A colourful collection of handmade tableware inspired by South African craft markets.",
     badge: "POPULAR",
     image:
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg", import.meta.url).href,
   },
   {
-    name: "Macramé Plant Hanger",
-    maker: "SOFIA REYES · BARCELONA, ES",
+    name: "Colourful Storyteller Serving Dish",
+    maker: "ZIZIPHO POSWA · CAPE TOWN, ZA",
+    type: "KITCHENWARE",
+    material: "Glazed ceramic · Hand-painted",
+    price: 425,
+    note: "A joyful serving dish shaped as a figurative storyteller and finished with bright colour.",
+    badge: "NEW",
+    image:
+      new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
+  },
+  {
+    name: "Carved Wooden Tumbler Set",
+    maker: "IMBALI WOODCRAFT COLLECTIVE · MPUMALANGA, ZA",
+    type: "KITCHENWARE",
+    material: "Carved wood · 6-piece set",
+    price: 396,
+    note: "Lightweight wooden tumblers with a smooth finish for everyday drinks and gatherings.",
+    badge: "NEW",
+    image:
+      new URL("../images/Handcrafted/mugset.jpg", import.meta.url).href,
+  },
+  {
+    name: "Heart-shaped Succulent Planters",
+    maker: "RIALHEIM STUDIO · ROBERTSON, ZA",
     type: "RECYCLED CRAFTS",
-    material: "Natural rope · Set of 2",
-    price: 185,
-    note: "Holds pots up to 25cm. Each hanger knotted by hand.",
-    badge: "NEW",
-    image:
-      "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Speckled Stoneware Mug",
-    maker: "ELENA VASQUEZ · OAXACA, MX",
-    type: "KITCHENWARE",
-    material: "Wheel-thrown · 350ml",
-    price: 96,
-    note: "A warm, everyday mug finished with a softly speckled reduction glaze.",
-    badge: "NEW",
-    image:
-      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?auto=format&fit=crop&w=900&q=85",
-  },
-  {
-    name: "Hand-carved Bread Knife",
-    maker: "JAMES OKORO · PORTLAND, OR",
-    type: "KITCHENWARE",
-    material: "Walnut handle · Carbon steel",
-    price: 275,
-    note: "Balanced for daily use with a hand-shaped walnut handle and serrated edge.",
+    material: "Handmade clay · 9-piece set",
+    price: 899,
+    note: "Playful heart-shaped planters made for small succulents, herbs and sunny windowsills.",
     badge: "HANDCRAFTED",
     image:
-      "https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/potplants.jpg", import.meta.url).href,
   },
   {
-    name: "River-glaze Serving Platter",
-    maker: "MIKA TANAKA · KYOTO, JP",
-    type: "KITCHENWARE",
-    material: "Ash glaze · 36cm wide",
-    price: 260,
-    note: "A generous serving piece with a hand-painted blue-grey river glaze.",
+    name: "Leather & Wax-print Pouch",
+    maker: "DITIRO MASHIGO · JOHANNESBURG, ZA",
+    type: "RECYCLED CRAFTS",
+    material: "Leather & printed textile · Zip pouch",
+    price: 420,
+    note: "A compact handmade pouch combining soft leather with a bold botanical wax-print panel.",
     badge: "LIMITED",
     image:
-      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/purse.jpg", import.meta.url).href,
   },
   {
-    name: "Reclaimed Linen Table Runner",
-    maker: "SOFIA REYES · BARCELONA, ES",
-    type: "RECYCLED CRAFTS",
-    material: "Reclaimed linen · 180cm",
-    price: 145,
-    note: "Woven from rescued linen fibres and finished with a naturally frayed edge.",
+    name: "South African Beaded Mug",
+    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
+    type: "KITCHENWARE",
+    material: "Glass beads & ceramic · Single mug",
+    price: 175,
+    note: "A bold mug wrapped in hand-stitched beadwork inspired by South African colour and pattern.",
     badge: "RECYCLED",
     image:
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/SA-rank.jpg", import.meta.url).href,
   },
   {
-    name: "Terracotta Herb Planter",
-    maker: "LENA BAUER · BERLIN, DE",
+    name: "Beaded Market Craft Display",
+    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
     type: "RECYCLED CRAFTS",
-    material: "Hand-shaped clay · Drainage hole",
-    price: 175,
-    note: "A porous terracotta planter made for kitchen herbs, windowsills and slow living.",
+    material: "Glass beads & wire · Hand-assembled",
+    price: 1750,
+    note: "A vibrant handmade display of beaded vessels and wire animals from a local craft market.",
     badge: "POPULAR",
     image:
-      "https://images.unsplash.com/photo-1485955900006-10f4d324d411?auto=format&fit=crop&w=900&q=85",
+      new URL("../images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg", import.meta.url).href,
   },
 ];
 
@@ -330,8 +330,8 @@ function removeItem(item) {
         <div class="maker-grid">
           <article v-for="maker in makers" :key="maker.name">
             <img :src="maker.image" :alt="maker.name" />
-            <h2>{{ maker.name }}</h2>
-            <p>{{ maker.location }}</p>
+            <h2>{{ maker.piece }}</h2>
+            <p>{{ maker.name }} · {{ maker.location }}</p>
             <small>{{ maker.detail }}</small>
           </article>
         </div>
