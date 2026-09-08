@@ -1,12 +1,19 @@
 <script setup>
 import { computed, ref } from "vue";
+import logo from "./assets/artisanhub-logo.png";
+import {
+  cartCount,
+  cartItems,
+  changeCartQuantity,
+  getPrice,
+  removeCartItem,
+} from "./cartStore";
 
 const activeFilter = ref("ALL");
 const selectedCreator = ref(null);
 const requestCreator = ref(null);
 const submitted = ref(false);
 const bagOpen = ref(false);
-const cartItems = ref([]);
 
 const creators = [
   {
@@ -173,13 +180,34 @@ function openRequest(creator) {
 }
 
 function changeQuantity(item, amount) {
-  item.quantity += amount;
-  if (item.quantity <= 0) {
-    cartItems.value = cartItems.value.filter(
-      (cartItem) => cartItem.name !== item.name,
-    );
-  }
+  changeCartQuantity(item, amount);
 }
+
+function removeItem(item) {
+  removeCartItem(item);
+}
+
+function itemName(item) {
+  return item.name || item.title;
+}
+
+function itemType(item) {
+  return item.type || item.category || "ARTISAN PIECE";
+}
+
+function itemTotal(item) {
+  const currency = String(item.price || "").trim().startsWith("£")
+    ? "£"
+    : "R ";
+  return `${currency}${(getPrice(item) * item.quantity).toLocaleString("en-ZA")}`;
+}
+
+const bagTotal = computed(() =>
+  cartItems.value.reduce(
+    (total, item) => total + getPrice(item) * item.quantity,
+    0,
+  ),
+);
 
 function submitRequest() {
   submitted.value = true;
@@ -189,12 +217,9 @@ function submitRequest() {
 <template>
   <div class="creators-page">
     <header class="site-header">
-      <a class="logo" href="#top"
-        ><span class="logo-mark">A</span
-        ><span
-          ><strong>ARTISAN HUB.</strong><small>ARTISAN GOODS</small></span
-        ></a
-      >
+      <a class="logo" href="#top">
+        <img class="brand-logo" :src="logo" alt="Artisan Hub" />
+      </a>
       <label class="search-box"
         ><span class="sr-only">Search creators</span
         ><input
@@ -215,14 +240,14 @@ function submitRequest() {
         aria-label="Open shopping bag"
         @click="bagOpen = true"
       >
-        ♧
+        ♧<span v-if="cartCount" class="bag-count">{{ cartCount }}</span>
       </button>
     </header>
 
     <div v-if="bagOpen" class="bag-backdrop" @click="bagOpen = false"></div>
     <aside v-if="bagOpen" class="bag-drawer" aria-label="Shopping bag">
       <div class="bag-heading">
-        <h2>Your Bag (0)</h2>
+        <h2>Your Bag ({{ cartCount }})</h2>
         <button
           type="button"
           aria-label="Close shopping bag"
@@ -232,11 +257,18 @@ function submitRequest() {
         </button>
       </div>
       <div v-if="cartItems.length" class="bag-list">
-        <article v-for="item in cartItems" :key="item.name" class="bag-item">
-          <p>{{ item.name }}</p>
-          <small>{{ item.type }}</small>
-          <strong>{{ item.price }}</strong>
-          <div class="quantity-controls">
+        <article
+          v-for="item in cartItems"
+          :key="itemName(item)"
+          class="bag-item"
+        >
+          <img v-if="item.image" :src="item.image" :alt="itemName(item)" />
+          <div v-else class="bag-item-image-placeholder">ARTISAN</div>
+          <div class="bag-item-info">
+            <p>{{ itemName(item) }}</p>
+            <small>{{ itemType(item) }} · Qty {{ item.quantity }}</small>
+            <strong>{{ itemTotal(item) }}</strong>
+            <div class="quantity-controls">
             <button
               type="button"
               aria-label="Decrease quantity"
@@ -252,6 +284,14 @@ function submitRequest() {
             >
               +
             </button>
+            </div>
+            <button
+              class="remove-button"
+              type="button"
+              @click="removeItem(item)"
+            >
+              REMOVE FROM CART
+            </button>
           </div>
         </article>
       </div>
@@ -260,6 +300,13 @@ function submitRequest() {
         <button type="button" @click="bagOpen = false">
           Continue shopping
         </button>
+      </div>
+      <div v-if="cartItems.length" class="bag-footer">
+        <div>
+          <span>Subtotal</span>
+          <strong>R {{ bagTotal.toLocaleString("en-ZA") }}</strong>
+        </div>
+        <button type="button" @click="bagOpen = false">CHECKOUT</button>
       </div>
     </aside>
 
@@ -651,6 +698,12 @@ function submitRequest() {
   color: var(--ink);
   text-decoration: none;
 }
+.brand-logo {
+  width: 68px;
+  height: 68px;
+  display: block;
+  object-fit: contain;
+}
 .logo-mark {
   display: inline-grid;
   place-items: center;
@@ -728,8 +781,8 @@ function submitRequest() {
   align-items: center;
   min-height: 560px;
   padding: 80px 3.2%;
-  color: #fff;
-  background: #200b07;
+  color: var(--ink);
+  background: #b8c4a8;
 }
 .hero-copy {
   max-width: 590px;
@@ -748,14 +801,17 @@ function submitRequest() {
     serif;
   letter-spacing: -0.06em;
 }
-.creator-hero h1 em,
+.creator-hero h1 em {
+  color: var(--rust);
+  font-weight: 600;
+}
 .match-section h2 em {
   color: #d0a36b;
   font-weight: 600;
 }
 .hero-copy > p:last-child {
   max-width: 570px;
-  color: #c2aba0;
+  color: #5f6c58;
   font-size: 21px;
   line-height: 1.6;
 }
@@ -770,7 +826,7 @@ function submitRequest() {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border: 1px solid #4a2a21;
+  border: 1px solid #87987a;
   text-align: center;
 }
 .hero-stats strong {
@@ -780,7 +836,7 @@ function submitRequest() {
 }
 .hero-stats span {
   margin-top: 10px;
-  color: #a17c68;
+  color: #5f6c58;
   letter-spacing: 0.15em;
   font-size: 13px;
 }
@@ -1179,8 +1235,25 @@ function submitRequest() {
   padding: 20px 28px;
 }
 .bag-item {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 16px;
   padding: 16px 0;
   border-bottom: 1px solid var(--line);
+}
+.bag-item img,
+.bag-item-image-placeholder {
+  width: 82px;
+  height: 100px;
+  object-fit: cover;
+}
+.bag-item-image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: #e1d5c4;
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 .bag-item p {
   margin: 3px 0 8px;
@@ -1197,6 +1270,15 @@ function submitRequest() {
 .bag-item strong {
   display: block;
   font-size: 17px;
+}
+.remove-button {
+  margin-top: 12px;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  text-decoration: underline;
+  cursor: pointer;
 }
 .quantity-controls {
   display: flex;
@@ -1223,6 +1305,31 @@ function submitRequest() {
   padding: 12px 16px;
   color: #fff;
   background: var(--rust);
+  cursor: pointer;
+}
+.bag-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding: 22px 28px 28px;
+}
+.bag-footer > div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  color: var(--muted);
+}
+.bag-footer strong {
+  color: var(--ink);
+  font: 700 20px Georgia, serif;
+}
+.bag-footer > button {
+  width: 100%;
+  border: 0;
+  padding: 15px;
+  color: #fff;
+  background: #200b07;
+  letter-spacing: 0.12em;
+  font-weight: 700;
   cursor: pointer;
 }
 .overlay {

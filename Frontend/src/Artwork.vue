@@ -1,12 +1,32 @@
 <script setup>
 import { computed, ref } from "vue";
+import logo from "./assets/artisanhub-logo.png";
+import {
+  addCartItem,
+  cartCount,
+  cartItems,
+  changeCartQuantity,
+  getItemName,
+  getItemType,
+  removeCartItem,
+} from "./cartStore";
+
+const artworkImages = [
+  new URL("../images/abstractimages.jpeg", import.meta.url).href,
+  new URL("../images/aspire.jpeg", import.meta.url).href,
+  new URL("../images/banana.jpeg", import.meta.url).href,
+  new URL("../images/birthmom.jpeg", import.meta.url).href,
+  new URL("../images/construction.jpeg", import.meta.url).href,
+  new URL("../images/empowering.jpeg", import.meta.url).href,
+  new URL("../images/gogo.jpeg", import.meta.url).href,
+  new URL("../images/women.jpeg", import.meta.url).href,
+];
 
 const activeCategory = ref("ALL");
 const selectedArtwork = ref(null);
 const email = ref("");
 const subscribed = ref(false);
 const bagOpen = ref(false);
-const cartItems = ref([]);
 
 // Add your own image path and rand price to each artwork object.
 const artworks = [
@@ -19,8 +39,8 @@ const artworks = [
     category: "ABSTRACT",
     badge: "ORIGINAL",
     edition: "Original",
-    image: "",
-    price: "",
+    image: artworkImages[0],
+    price: "R 6000",
     description:
       "A study in tension — oil pulled across linen in a single unbroken session. No underdrawing.",
   },
@@ -33,8 +53,8 @@ const artworks = [
     category: "ABSTRACT",
     badge: "1 OF 1",
     edition: "1 of 1",
-    image: "",
-    price: "",
+    image: artworkImages[1],
+    price: "R 6799",
     description:
       "Built in layers of mineral pigment and sand, this work holds the quiet energy of a changing landscape.",
   },
@@ -47,8 +67,8 @@ const artworks = [
     category: "ABSTRACT",
     badge: "ORIGINAL",
     edition: "Original",
-    image: "",
-    price: "",
+    image: artworkImages[2],
+    price: "R 3350",
     description:
       "Colour, texture, and light meet in a warm, tactile composition made in the artist's Accra studio.",
   },
@@ -61,8 +81,8 @@ const artworks = [
     category: "ABSTRACT",
     badge: "FEATURED",
     edition: "Original",
-    image: "",
-    price: "",
+    image: artworkImages[3],
+    price: "R 2999",
     description:
       "A colour field broken only by the painter's hesitation. Exhibited in Osaka, 2025.",
   },
@@ -75,8 +95,8 @@ const artworks = [
     category: "PHOTOGRAPHY",
     badge: "",
     edition: "Ed. of 20",
-    image: "",
-    price: "",
+    image: artworkImages[4],
+    price: "R 1750",
     description:
       "An archival print exploring the relationship between shape, shadow, and the spaces objects leave behind.",
   },
@@ -89,8 +109,8 @@ const artworks = [
     category: "PHOTOGRAPHY",
     badge: "",
     edition: "Ed. of 10",
-    image: "",
-    price: "",
+    image: artworkImages[5],
+    price: "R 2499",
     description:
       "A quiet interior study made with a large-format camera and printed on museum-grade paper.",
   },
@@ -103,8 +123,8 @@ const artworks = [
     category: "PHOTOGRAPHY",
     badge: "",
     edition: "Ed. of 15",
-    image: "",
-    price: "",
+    image: artworkImages[6],
+    price: "R 8999",
     description:
       "Three pigment prints tracing the shape and rhythm of plants through soft, natural light.",
   },
@@ -117,8 +137,8 @@ const artworks = [
     category: "SCULPTURE",
     badge: "",
     edition: "Ed. of 8",
-    image: "",
-    price: "",
+    image: artworkImages[7],
+    price: "R 2500",
     description:
       "A compact bronze sculpture considering weight, movement, and the human instinct to carry.",
   },
@@ -136,31 +156,37 @@ function subscribe() {
 }
 
 function addToBag(artwork) {
-  const existing = cartItems.value.find((item) => item.title === artwork.title);
-  if (existing) existing.quantity += 1;
-  else cartItems.value.push({ ...artwork, quantity: 1 });
+  addCartItem(artwork);
   selectedArtwork.value = null;
   bagOpen.value = true;
 }
 
 function changeQuantity(item, amount) {
-  item.quantity += amount;
-  if (item.quantity <= 0)
-    cartItems.value = cartItems.value.filter(
-      (cartItem) => cartItem.title !== item.title,
-    );
+  changeCartQuantity(item, amount);
 }
+
+function removeItem(item) {
+  removeCartItem(item);
+}
+
+function numericPrice(item) {
+  return Number(String(item.price || "0").replace(/[^0-9.]/g, ""));
+}
+
+const cartTotal = computed(() =>
+  cartItems.value.reduce(
+    (total, item) => total + numericPrice(item) * item.quantity,
+    0,
+  ),
+);
 </script>
 
 <template>
   <div class="artwork-page">
     <header class="site-header">
-      <a class="logo" href="#top"
-        ><span class="logo-mark">A</span
-        ><span
-          ><strong>ARTISAN HUB.</strong><small>ARTISAN GOODS</small></span
-        ></a
-      >
+      <a class="logo" href="#top">
+        <img class="brand-logo" :src="logo" alt="Artisan Hub" />
+      </a>
       <label class="search-box"
         ><span class="sr-only">Search artwork</span
         ><input
@@ -180,7 +206,7 @@ function changeQuantity(item, amount) {
         aria-label="Shopping bag"
         @click="bagOpen = true"
       >
-        ♧
+        ♧<span v-if="cartCount" class="bag-count">{{ cartCount }}</span>
       </button>
     </header>
 
@@ -201,11 +227,13 @@ function changeQuantity(item, amount) {
         </button>
       </div>
       <div v-if="cartItems.length" class="bag-list">
-        <article v-for="item in cartItems" :key="item.title" class="bag-item">
+        <article v-for="item in cartItems" :key="getItemName(item)" class="bag-item">
+          <img v-if="item.image" :src="item.image" :alt="getItemName(item)" />
+          <div v-else class="bag-item-image-placeholder">ARTISAN</div>
           <div>
-            <p>{{ item.title }}</p>
-            <small>{{ item.artist }}</small>
-            <strong>{{ item.price || "R —" }}</strong>
+            <p>{{ getItemName(item) }}</p>
+            <small>{{ item.artist || item.maker || getItemType(item) }}</small>
+            <strong>R {{ numericPrice(item) * item.quantity || "—" }}</strong>
             <div class="quantity-controls">
               <button
                 type="button"
@@ -223,6 +251,9 @@ function changeQuantity(item, amount) {
                 +
               </button>
             </div>
+            <button class="remove-button" type="button" @click="removeItem(item)">
+              REMOVE FROM CART
+            </button>
           </div>
         </article>
       </div>
@@ -231,6 +262,10 @@ function changeQuantity(item, amount) {
         <button type="button" @click="bagOpen = false">
           Continue shopping
         </button>
+      </div>
+      <div v-if="cartItems.length" class="bag-footer">
+        <div><span>Subtotal</span><strong>R {{ cartTotal }}</strong></div>
+        <button type="button" @click="bagOpen = false">CHECKOUT</button>
       </div>
     </aside>
 
@@ -373,7 +408,13 @@ function changeQuantity(item, amount) {
         >
           ×
         </button>
-        <div class="modal-image"><span>ADD IMAGE</span></div>
+        <div class="modal-image">
+          <img
+            v-if="selectedArtwork.image"
+            :src="selectedArtwork.image"
+            :alt="selectedArtwork.title"
+          /><span v-else>ADD IMAGE</span>
+        </div>
         <div class="modal-content">
           <p class="kicker">NOW SHOWING</p>
           <h2>{{ selectedArtwork.title }}</h2>
@@ -446,6 +487,12 @@ function changeQuantity(item, amount) {
   min-width: 280px;
   color: var(--ink);
   text-decoration: none;
+}
+.brand-logo {
+  width: 68px;
+  height: 68px;
+  display: block;
+  object-fit: contain;
 }
 .logo-mark {
   display: inline-grid;
@@ -669,8 +716,8 @@ function changeQuantity(item, amount) {
 }
 .commission-banner {
   padding: 78px 24px;
-  color: #fff;
-  background: #200b07;
+  color: var(--ink);
+  background: #b8c4a8;
   text-align: center;
 }
 .commission-banner h2 {
@@ -682,20 +729,20 @@ function changeQuantity(item, amount) {
 }
 .commission-banner h2 em,
 .newsletter h2 em {
-  color: #d0a36b;
+  color: var(--rust);
   font-weight: 600;
 }
 .commission-banner > p:not(.kicker) {
   max-width: 650px;
   margin: 0 auto 35px;
-  color: #c2aba0;
+  color: #5f6c58;
   line-height: 1.6;
 }
 .commission-banner a {
   display: inline-block;
-  border: 1px solid #8b6b60;
+  border: 1px solid #667759;
   padding: 16px 38px;
-  color: #fff;
+  color: var(--ink);
   text-decoration: none;
   letter-spacing: 0.12em;
   font-weight: 700;
@@ -832,8 +879,25 @@ function changeQuantity(item, amount) {
   padding: 20px 28px;
 }
 .bag-item {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 16px;
   padding: 16px 0;
   border-bottom: 1px solid var(--line);
+}
+.bag-item img,
+.bag-item-image-placeholder {
+  width: 82px;
+  height: 100px;
+  object-fit: cover;
+}
+.bag-item-image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: #e1d5c4;
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 .bag-item p {
   margin: 3px 0 8px;
@@ -850,6 +914,15 @@ function changeQuantity(item, amount) {
 .bag-item strong {
   display: block;
   font-size: 17px;
+}
+.remove-button {
+  margin-top: 12px;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  background: transparent;
+  text-decoration: underline;
+  cursor: pointer;
 }
 .quantity-controls {
   display: flex;
@@ -881,6 +954,31 @@ function changeQuantity(item, amount) {
   padding: 12px 16px;
   color: #fff;
   background: var(--rust);
+  cursor: pointer;
+}
+.bag-footer {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  padding: 22px 28px 28px;
+}
+.bag-footer div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  color: var(--muted);
+}
+.bag-footer strong {
+  color: var(--ink);
+  font: 700 20px Georgia, serif;
+}
+.bag-footer > button {
+  width: 100%;
+  border: 0;
+  padding: 15px;
+  color: #fff;
+  background: #200b07;
+  letter-spacing: 0.12em;
+  font-weight: 700;
   cursor: pointer;
 }
 .artwork-modal-backdrop {
@@ -921,6 +1019,12 @@ function changeQuantity(item, amount) {
   background: #ded5c7;
   letter-spacing: 0.18em;
   font-size: 13px;
+}
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 650px;
+  object-fit: cover;
 }
 .modal-content {
   padding: 65px 42px 40px;
@@ -1073,6 +1177,9 @@ function changeQuantity(item, amount) {
     max-height: 95vh;
   }
   .modal-image {
+    min-height: 280px;
+  }
+  .modal-image img {
     min-height: 280px;
   }
   .modal-content {

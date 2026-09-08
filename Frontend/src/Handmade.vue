@@ -1,12 +1,20 @@
 <script setup>
 import { computed, ref } from "vue";
+import logo from "./assets/artisanhub-logo.png";
+import {
+  addCartItem,
+  cartCount,
+  cartItems,
+  changeCartQuantity,
+  getItemName,
+  getItemType,
+  removeCartItem,
+} from "./cartStore";
 
 const search = ref("");
 const activeGroup = ref("ALL");
 const activeType = ref("ALL");
-const cartCount = ref(0);
 const cartOpen = ref(false);
-const cartItems = ref([]);
 
 const products = [
   {
@@ -14,9 +22,8 @@ const products = [
     maker: "PRIYA NAIR · JAIPUR, IN",
     type: "NECKLACE",
     group: "JEWELLERY",
-    image:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=900&q=85",
-    price: "£128",
+    image: "",
+    price: "R 128",
     material: "Sterling silver · Hand-forged",
     note: "A one-off pendant with an oxidised crescent and recycled silver chain.",
     badge: "BESTSELLER",
@@ -26,9 +33,8 @@ const products = [
     maker: "TAHLIA MOORE · MELBOURNE, AU",
     type: "RING",
     group: "JEWELLERY",
-    image:
-      "https://images.unsplash.com/photo-1605100804763-247f67b3557e?auto=format&fit=crop&w=900&q=85",
-    price: "£86",
+    image: "",
+    price: "R 86",
     material: "Sterling silver · Black onyx",
     note: "A softly squared ring designed to be worn and layered every day.",
   },
@@ -37,9 +43,8 @@ const products = [
     maker: "TAHLIA MOORE · MELBOURNE, AU",
     type: "RING",
     group: "JEWELLERY",
-    image:
-      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=900&q=85",
-    price: "£94",
+    image: "",
+    price: "R 94",
     material: "Recycled silver · Hand-finished",
     note: "Quietly sculptural, with the marks of the maker left visible.",
     badge: "NEW",
@@ -50,9 +55,8 @@ const products = [
     maker: "PRIYA NAIR · JAIPUR, IN",
     type: "EARRINGS",
     group: "JEWELLERY",
-    image:
-      "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=900&q=85",
-    price: "£72",
+    image: "",
+    price: "R 72",
     material: "Gold vermeil · Recycled brass",
     note: "Small statement hoops made slowly at Priya’s Jaipur bench.",
     badge: "SALE",
@@ -63,9 +67,8 @@ const products = [
     maker: "LENA BAUER · BERLIN, DE",
     type: "VASE",
     group: "ORNAMENTS",
-    image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=900&q=85",
-    price: "£115",
+    image: "",
+    price: "R 115",
     material: "Stoneware · Hand-pinched",
     note: "Pinch-built over three sessions, each layer left to speak for itself.",
   },
@@ -74,9 +77,8 @@ const products = [
     maker: "ELENA VASQUEZ · OAXACA, MX",
     type: "VASE",
     group: "ORNAMENTS",
-    image:
-      "https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=900&q=85",
-    price: "£162",
+    image: "",
+    price: "R 162",
     material: "Earthenware · Set of 4",
     note: "Four bud vases in complementary glazes, made to be mixed and matched.",
     badge: "NEW",
@@ -87,9 +89,8 @@ const products = [
     maker: "MIKA TANAKA · KYOTO, JP",
     type: "SCULPTURE",
     group: "ORNAMENTS",
-    image:
-      "https://images.unsplash.com/photo-1493106641515-6b5631de4bb9?auto=format&fit=crop&w=900&q=85",
-    price: "£94",
+    image: "",
+    price: "R 94",
     material: "Stoneware · Sculptural",
     note: "A meditation on weight and form. The stack stays beautifully balanced.",
   },
@@ -98,9 +99,8 @@ const products = [
     maker: "SOFIA REYES · BARCELONA, ES",
     type: "WALL ART",
     group: "ORNAMENTS",
-    image:
-      "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=900&q=85",
-    price: "£78",
+    image: "",
+    price: "R 78",
     material: "Dyed cotton · 45cm diameter",
     note: "Woven on a hand-built loom from naturally dyed fibres.",
     badge: "LIMITED",
@@ -130,50 +130,46 @@ const filteredProducts = computed(() =>
   }),
 );
 function addToCart(product) {
-  cartCount.value += 1;
-  const existing = cartItems.value.find((item) => item.name === product.name);
-  if (existing) existing.quantity += 1;
-  else cartItems.value.push({ ...product, quantity: 1 });
+  addCartItem(product);
   cartOpen.value = true;
 }
 
 function increaseQuantity(product) {
-  const existing = cartItems.value.find((item) => item.name === product.name);
-  if (existing) {
-    existing.quantity += 1;
-    cartCount.value += 1;
-  }
+  changeCartQuantity(product, 1);
 }
 
 function removeFromCart(product) {
-  const existing = cartItems.value.find((item) => item.name === product.name);
-  if (!existing) return;
-  cartCount.value -= 1;
-  if (existing.quantity > 1) existing.quantity -= 1;
-  else
-    cartItems.value = cartItems.value.filter(
-      (item) => item.name !== product.name,
-    );
+  changeCartQuantity(product, -1);
 }
+
+function removeItem(product) {
+  removeCartItem(product);
+}
+
+function itemTotal(item) {
+  return itemPrice(item) * item.quantity;
+}
+
+function itemPrice(item) {
+  return Number(String(item.price).replace(/[^0-9.]/g, ""));
+}
+
 
 const cartTotal = computed(() =>
   cartItems.value.reduce(
     (total, item) =>
-      total + Number(item.price.replace("£", "")) * item.quantity,
+      total + itemTotal(item),
     0,
   ),
 );
 </script>
 
 <template>
-  <div class="storefront">
+  <div class="storefront handmade-page">
     <header class="site-header">
-      <a class="logo" href="#top"
-        ><span class="logo-mark">A</span
-        ><span
-          ><strong>ARTISAN HUB.</strong><small>ARTISAN GOODS</small></span
-        ></a
-      >
+      <a class="logo" href="#top">
+        <img class="brand-logo" :src="logo" alt="Artisan Hub" />
+      </a>
       <label class="search-box"
         ><span class="sr-only">Search products</span
         ><input
@@ -210,12 +206,13 @@ const cartTotal = computed(() =>
         </button>
       </div>
       <div v-if="cartItems.length" class="bag-list">
-        <article v-for="item in cartItems" :key="item.name" class="bag-item">
-          <img :src="item.image" :alt="item.name" />
+        <article v-for="item in cartItems" :key="getItemName(item)" class="bag-item">
+          <img v-if="item.image" :src="item.image" :alt="getItemName(item)" />
+          <div v-else class="bag-item-image-placeholder">ARTISAN</div>
           <div>
-            <p>{{ item.name }}</p>
-            <small>{{ item.type }} · Qty {{ item.quantity }}</small
-            ><strong>{{ item.price }}</strong>
+            <p>{{ getItemName(item) }}</p>
+            <small>{{ getItemType(item) }} · Qty {{ item.quantity }}</small
+            ><strong>R {{ itemPrice(item) }} · R {{ itemTotal(item) }}</strong>
             <div class="quantity-controls">
               <button
                 type="button"
@@ -233,6 +230,13 @@ const cartTotal = computed(() =>
                 +
               </button>
             </div>
+            <button
+              class="remove-button"
+              type="button"
+              @click="removeItem(item)"
+            >
+              REMOVE FROM CART
+            </button>
           </div>
         </article>
       </div>
@@ -244,7 +248,7 @@ const cartTotal = computed(() =>
       </div>
       <div v-if="cartItems.length" class="bag-footer">
         <div>
-          <span>Subtotal</span><strong>£{{ cartTotal }}</strong>
+          <span>Subtotal</span><strong>R {{ cartTotal }}</strong>
         </div>
         <button type="button" @click="cartOpen = false">CHECKOUT</button>
       </div>
@@ -352,7 +356,7 @@ const cartTotal = computed(() =>
             class="product-card"
           >
             <div class="product-image">
-              <img
+              <img v-if="product.image"
                 :src="product.image"
                 :alt="product.name"
                 loading="lazy"
@@ -366,13 +370,7 @@ const cartTotal = computed(() =>
                 type="button"
                 @click="addToCart(product)"
               >
-                ADD TO CART</button
-              ><button
-                class="view-button"
-                type="button"
-                aria-label="Preview product"
-              >
-                ⌾
+                ADD TO CART
               </button>
             </div>
             <p class="maker">{{ product.maker }}</p>
@@ -398,7 +396,7 @@ const cartTotal = computed(() =>
         </div>
         <div class="stats">
           <div><strong>3–16 wks</strong><span>TYPICAL LEAD TIME</span></div>
-          <div><strong>£42+</strong><span>COMMISSIONS FROM</span></div>
+          <div><strong>R 42+</strong><span>COMMISSIONS FROM</span></div>
           <div>
             <strong>6</strong><span>JEWELLERY &amp; ORNAMENT MAKERS</span>
           </div>
@@ -489,6 +487,16 @@ const cartTotal = computed(() =>
   width: 82px;
   height: 100px;
   object-fit: cover;
+}
+.bag-item-image-placeholder {
+  display: grid;
+  width: 82px;
+  height: 100px;
+  place-items: center;
+  color: #997b69;
+  background: #e1d5c4;
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 .bag-item p {
   margin: 3px 0 8px;

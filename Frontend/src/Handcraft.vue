@@ -1,9 +1,17 @@
 <script setup>
 import { computed, ref } from "vue";
+import logo from "./assets/artisanhub-logo.png";
+import {
+  addCartItem,
+  cartItems,
+  changeCartQuantity,
+  getItemName,
+  getItemType,
+  removeCartItem,
+} from "./cartStore";
 
 const activeCategory = ref("ALL");
 const cartOpen = ref(false);
-const cartItems = ref([]);
 
 const makers = [
   {
@@ -181,33 +189,25 @@ function money(value) {
 }
 
 function addToCart(product) {
-  const existing = cartItems.value.find((item) => item.name === product.name);
-  if (existing) existing.quantity += 1;
-  else cartItems.value.push({ ...product, quantity: 1 });
+  addCartItem(product);
   cartOpen.value = true;
 }
 
 function changeQuantity(item, amount) {
-  item.quantity += amount;
-  if (item.quantity <= 0) removeItem(item);
+  changeCartQuantity(item, amount);
 }
 
 function removeItem(item) {
-  cartItems.value = cartItems.value.filter(
-    (cartItem) => cartItem.name !== item.name,
-  );
+  removeCartItem(item);
 }
 </script>
 
 <template>
   <div class="handcraft-page">
     <header class="site-header">
-      <a class="logo" href="#handcraft"
-        ><span class="logo-mark">A</span
-        ><span
-          ><strong>ARTISAN HUB.</strong><small>ARTISAN GOODS</small></span
-        ></a
-      >
+      <a class="logo" href="#handcraft">
+        <img class="brand-logo" :src="logo" alt="Artisan Hub" />
+      </a>
       <label class="search-box"
         ><span class="sr-only">Search handcrafts</span
         ><input
@@ -243,11 +243,13 @@ function removeItem(item) {
         </button>
       </div>
       <div v-if="cartItems.length" class="bag-list">
-        <article v-for="item in cartItems" :key="item.name" class="bag-item">
+        <article v-for="item in cartItems" :key="getItemName(item)" class="bag-item">
+          <img v-if="item.image" :src="item.image" :alt="getItemName(item)" />
+          <div v-else class="bag-item-image-placeholder">ARTISAN</div>
           <div class="bag-item-info">
-            <p>{{ item.name }}</p>
-            <small>{{ item.maker }}</small
-            ><strong>{{ money(item.price) }}</strong>
+            <p>{{ getItemName(item) }}</p>
+            <small>{{ item.maker || item.artist || getItemType(item) }} · Qty {{ item.quantity }}</small
+            ><strong>{{ money(item.price * item.quantity) }}</strong>
             <div class="quantity-controls">
               <button
                 type="button"
@@ -423,8 +425,8 @@ function removeItem(item) {
   overflow-x: hidden;
 }
 .site-header {
-  height: 68px;
-  padding: 0 11.5%;
+  height: 84px;
+  padding: 0 2.1%;
   display: flex;
   align-items: center;
   gap: 3.2%;
@@ -442,11 +444,17 @@ function removeItem(item) {
   color: var(--ink);
   text-decoration: none;
 }
+.brand-logo {
+  width: 68px;
+  height: 68px;
+  display: block;
+  object-fit: contain;
+}
 .logo-mark {
   display: inline-grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   color: #fff;
   background: #893b1d;
   font:
@@ -474,7 +482,7 @@ function removeItem(item) {
 }
 .search-box input {
   width: 100%;
-  height: 35px;
+  height: 44px;
   border: 1px solid #d9d0c4;
   padding: 0 45px 0 18px;
   color: var(--ink);
@@ -497,9 +505,9 @@ function removeItem(item) {
   white-space: nowrap;
 }
 .main-nav a {
-  padding: 22px 0 8px;
+  padding: 30px 0 11px;
   color: var(--ink);
-  font-size: 15px;
+  font-size: 16px;
   text-decoration: none;
 }
 .main-nav a.active {
@@ -620,7 +628,7 @@ function removeItem(item) {
 }
 .maker-section {
   padding: 58px 11.5% 72px;
-  background: #e9e1d4;
+  background: #b8c4a8;
 }
 .maker-grid {
   display: grid;
@@ -864,8 +872,25 @@ function removeItem(item) {
   padding: 20px 28px;
 }
 .bag-item {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 16px;
   padding: 16px 0;
   border-bottom: 1px solid var(--line);
+}
+.bag-item img,
+.bag-item-image-placeholder {
+  width: 82px;
+  height: 100px;
+  object-fit: cover;
+}
+.bag-item-image-placeholder {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  background: #e1d5c4;
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
 .bag-item p {
   margin: 3px 0 8px;
@@ -958,9 +983,6 @@ function removeItem(item) {
   background: transparent;
 }
 @media (max-width: 1100px) {
-  .site-header {
-    padding: 0 4%;
-  }
   .main-nav {
     gap: 14px;
   }
