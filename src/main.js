@@ -1,12 +1,15 @@
-import { createApp } from 'vue'
-import App from './App.vue'
-import router from './router'
 
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap'
+import "./assets/globalStyle.css";
 
-import './style.css'
+import { createApp } from "vue";
+import store from "./stores";
 
-createApp(App)
-  .use(router)
-  .mount('#app')
+import App from "./App.vue";
+import router from "./router";
+
+const app = createApp(App);
+
+app.use(router);
+app.use(store);
+
+app.mount("#app");
