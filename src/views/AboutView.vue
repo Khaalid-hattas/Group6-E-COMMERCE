@@ -168,14 +168,16 @@ const teamMembers = ref([
     role: "UI Designers & Full-Stack Integration Developers",
     responsibilities:
       "UI & Layout Integration, User Account Onboarding, JWT Authentication, and Global Database Schemas.",
-    avatar: "",
+    avatar:
+      "https://thumbs.dreamstime.com/b/couple-user-profile-icon-representing-relationship-concept-avatar-line-drawing-displaying-two-outline-people-man-woman-457003532.jpg",
   },
   {
     name: "Khaalid & Phumzile",
     role: "Product, Order & Database Developers",
     responsibilities:
       "Core Product Listings, Creator Catalog Directories, Shopping Cart Operations, Payment Simulation API, and Checkout Management.",
-    avatar: "",
+    avatar:
+      "https://static.vecteezy.com/system/resources/previews/068/603/211/non_2x/minimalist-outline-two-people-user-avatar-group-icon-design-element-vector.jpg",
   },
 ]);
 </script>
