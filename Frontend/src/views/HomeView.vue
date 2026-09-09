@@ -71,7 +71,7 @@
           :key="category.name"
           class="category-card motion-card"
           :style="{ '--card-delay': `${index * 120}ms` }"
-          :to="{ path: '/marketplace', query: { category: category.name } }"
+          to="/login"
           @pointermove="handleCardPointerMove"
           @pointerleave="resetCardPointer"
         >
@@ -257,18 +257,15 @@ function resetCardPointer(event) {
 const categories = ref([
   {
     name: "Artwork",
-    image:
-      "https://www.tallengestore.com/cdn/shop/products/Colorful_20Abstract_20Artwork_b7f06033-584f-4d78-99a0-1404857e719b.jpg?v=1481892167",
+    image: new URL("../../images/Artwork/abstractimages.jpeg", import.meta.url).href,
   },
   {
     name: "Hand-Crafted",
-    image:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS2GxircUPF5c375ehJiHedxLOVYexj7NDOLvt9zlcqPgHc3jcu-8JdRqo&s=10",
+    image: new URL("../../images/Handcrafted/antique-set.jpg", import.meta.url).href,
   },
   {
     name: "Hand-made",
-    image:
-      "https://www.dreamywalls.com/cdn/shop/articles/thumbnail_767e2183-4d15-4a09-8cc4-3292fd2bf6a5.jpg?v=1752759709",
+    image: new URL("../../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
   },
 ]);
 
