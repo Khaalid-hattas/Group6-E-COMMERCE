@@ -1,7 +1,7 @@
 {
-  "name": "craftsphere",
-  "version": "0.0.0",
+  "name": "group6-e-commerce-frontend",
   "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

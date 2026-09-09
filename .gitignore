@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Logs
 logs
 *.log
@@ -37,3 +38,20 @@ __screenshots__/
 
 # Vite
 *.timestamp-*-*.mjs
+=======
+# Installed dependencies
+node_modules/
+
+# Build and coverage output
+dist/
+coverage/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Logs and local tool state
+*.log
+.DS_Store
+>>>>>>> Khaalid/dev
