@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import logo from "./assets/artisanhub-logo.png";
+import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
   cartItems,
@@ -203,9 +204,10 @@ function removeItem(item) {
 </script>
 
 <template>
+  <Navbar />
   <div class="handcraft-page">
     <header class="site-header">
-      <a class="logo" href="#handcraft">
+      <a class="logo" href="/">
         <img class="brand-logo" :src="logo" alt="Artisan Hub" />
       </a>
       <label class="search-box"
@@ -216,9 +218,9 @@ function removeItem(item) {
         /><span class="search-icon">⌕</span></label
       >
       <nav class="main-nav" aria-label="Main navigation">
-        <a class="active" href="#handcraft">Handcrafted</a
-        ><a href="#handmade">Handmade</a><a href="#artwork">Artwork</a>
-        <a href="#creators">Creators</a><a href="#about">About Us</a>
+        <a class="active" href="/handcraft">Handcrafted</a
+        ><a href="/handmade">Handmade</a><a href="/artwork">Artwork</a>
+        <a href="/creators">Creators</a><a href="/about">About Us</a>
       </nav>
       <button
         class="bag-button"
@@ -274,7 +276,7 @@ function removeItem(item) {
       </div>
       <div v-else class="empty-bag">
         <p>Your bag is empty.</p>
-        <button type="button" @click="cartOpen = false">
+        <button type="button" @click="$router.push('/')">
           Continue shopping
         </button>
       </div>
@@ -282,11 +284,11 @@ function removeItem(item) {
         <div>
           <span>Total</span><strong>{{ money(cartTotal) }}</strong>
         </div>
-        <button type="button" @click="cartOpen = false">CHECKOUT</button
+        <button type="button" @click="$router.push({ name: 'landing', hash: '#checkout' })">CHECKOUT</button
         ><button
           class="continue-button"
           type="button"
-          @click="cartOpen = false"
+          @click="$router.push('/')"
         >
           Continue Shopping
         </button>
@@ -423,6 +425,9 @@ function removeItem(item) {
   min-height: 100vh;
   width: 100%;
   overflow-x: hidden;
+}
+.handcraft-page > .site-header {
+  display: none;
 }
 .site-header {
   height: 84px;

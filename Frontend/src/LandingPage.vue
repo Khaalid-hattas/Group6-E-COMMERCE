@@ -62,10 +62,10 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
   <div class="landing-shell" @click.capture="handleCheckoutClick">
     <section v-if="currentPage === 'checkout'" class="payment-page">
       <header class="payment-header">
-        <a class="payment-logo" href="#handcraft">
+        <a class="payment-logo" href="/">
           <img class="payment-brand-logo" :src="logo" alt="Artisan Hub" />
         </a>
-        <a class="back-link" href="#handcraft">← Continue shopping</a>
+        <a class="back-link" href="/">← Continue shopping</a>
       </header>
 
       <main class="payment-main">
@@ -91,7 +91,7 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
               Your payment was received. We’ll email your order confirmation
               shortly.
             </p>
-            <a href="#handcraft">RETURN TO SHOP</a>
+            <a href="/">RETURN TO SHOP</a>
           </div>
 
           <template v-else>

@@ -154,7 +154,14 @@
         </form>
 
         <p class="auth-footer-text">
-          Already have an account? <router-link to="/login">Log in</router-link>
+          Already have an account?
+          <router-link
+            :to="{
+              path: '/login',
+              query: { redirect: route.query.redirect || '/landing' },
+            }"
+            >Log in</router-link
+          >
         </p>
       </div>
     </div>
@@ -163,9 +170,10 @@
 
 <script setup>
 import { ref, reactive, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const role = ref(route.query.role === "creator" ? "creator" : "buyer");
 
 const form = reactive({
@@ -206,6 +214,6 @@ function handleRegister() {
         }),
   };
   console.log("Register payload:", payload);
-  // TODO: POST to /api/auth/register once backend is wired up
+  router.push({ name: "landing" });
 }
 </script>

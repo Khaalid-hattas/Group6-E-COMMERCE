@@ -65,7 +65,13 @@
 
         <p class="auth-footer-text">
           Don't have an account?
-          <router-link :to="`/register?role=${role}`">Create one</router-link>
+          <router-link
+            :to="{
+              path: '/register',
+              query: { role, redirect: route.query.redirect || '/landing' },
+            }"
+            >Create one</router-link
+          >
         </p>
       </div>
     </div>
@@ -74,12 +80,15 @@
 
 <script setup>
 import { ref, reactive } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const role = ref("buyer");
 const form = reactive({ email: "", password: "" });
+const route = useRoute();
+const router = useRouter();
 
 function handleLogin() {
   console.log("Login payload:", { role: role.value, ...form });
-  // TODO: POST to /api/auth/login, redirect based on returned role
+  router.push({ name: "landing" });
 }
 </script>

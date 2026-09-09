@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from "vue";
 import logo from "./assets/artisanhub-logo.png";
+import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
   cartCount,
@@ -166,9 +167,10 @@ const cartTotal = computed(() =>
 </script>
 
 <template>
+  <Navbar />
   <div class="storefront handmade-page">
     <header class="site-header">
-      <a class="logo" href="#top">
+      <a class="logo" href="/">
         <img class="brand-logo" :src="logo" alt="Artisan Hub" />
       </a>
       <label class="search-box"
@@ -180,10 +182,10 @@ const cartTotal = computed(() =>
         /><span class="search-icon">⌕</span></label
       >
       <nav class="main-nav" aria-label="Main navigation">
-        <a href="#handcraft">Handcrafted</a
-        ><a class="active" href="#handmade">Handmade</a
-        ><a href="#artwork">Artwork</a> <a href="#creators">Creators</a
-        ><a href="#about">About Us</a>
+        <a href="/handcraft">Handcrafted</a
+        ><a class="active" href="/handmade">Handmade</a
+        ><a href="/artwork">Artwork</a> <a href="/creators">Creators</a
+        ><a href="/about">About Us</a>
       </nav>
       <button
         class="bag-button"
@@ -243,7 +245,7 @@ const cartTotal = computed(() =>
       </div>
       <div v-else class="empty-bag">
         <p>Your bag is empty.</p>
-        <button type="button" @click="cartOpen = false">
+        <button type="button" @click="$router.push('/')">
           Continue shopping
         </button>
       </div>
@@ -251,7 +253,7 @@ const cartTotal = computed(() =>
         <div>
           <span>Subtotal</span><strong>R {{ cartTotal }}</strong>
         </div>
-        <button type="button" @click="cartOpen = false">CHECKOUT</button>
+        <button type="button" @click="$router.push({ name: 'landing', hash: '#checkout' })">CHECKOUT</button>
       </div>
     </aside>
     <main id="top">
@@ -433,6 +435,9 @@ const cartTotal = computed(() =>
 </template>
 
 <style scoped>
+.handmade-page > .site-header {
+  display: none;
+}
 .bag-backdrop {
   position: fixed;
   inset: 0;
