@@ -416,7 +416,7 @@ function removeItem(item) {
 <style scoped>
 .handcraft-page {
   --paper: #f3eee4;
-  --ink: #160a06;
+  --ink: #200b07;
   --rust: #8f3f1c;
   --muted: #997b69;
   --line: #ded5c7;

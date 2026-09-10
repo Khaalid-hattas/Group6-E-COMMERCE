@@ -453,7 +453,7 @@ const cartTotal = computed(() =>
   width: min(430px, 100vw);
   display: flex;
   flex-direction: column;
-  color: #160a06;
+  color: #200b07;
   background: #f3eee4;
   box-shadow: -12px 0 35px rgba(22, 10, 6, 0.18);
 }

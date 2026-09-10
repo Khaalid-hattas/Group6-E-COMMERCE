@@ -1,14 +1,21 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import emailjs from "@emailjs/browser";
+import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
 import logo from "./assets/artisanhub-logo.png";
 import Artwork from "./Artwork.vue";
 import Creators from "./Creators.vue";
 import Handcraft from "./Handcraft.vue";
 import Handmade from "./Handmade.vue";
+import { cartItems, cartTotal, getItemName, getPrice } from "./cartStore";
 
 const currentPage = ref("handcraft");
-const checkoutTotal = ref("R 0");
 const paymentComplete = ref(false);
+const paymentError = ref("");
+const form = reactive({ email: "" });
+
+function money(amount) {
+  return `R ${Number(amount).toFixed(2)}`;
+}
 
 function updatePage() {
   const hash = window.location.hash;
@@ -37,17 +44,51 @@ function handleCheckoutClick(event) {
     return;
   }
 
-  const subtotal = target
-    .closest(".bag-drawer")
-    ?.querySelector(".bag-footer strong")?.textContent;
-
-  checkoutTotal.value = subtotal || "R 0";
   paymentComplete.value = false;
+  paymentError.value = "";
   window.location.hash = "checkout";
 }
 
-function submitPayment() {
-  paymentComplete.value = true;
+async function submitPayment() {
+  paymentError.value = "";
+
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+  if (!serviceId || !templateId || !publicKey) {
+    paymentError.value = "Email confirmation is not configured yet.";
+    return;
+  }
+
+  const orders = cartItems.value.map((item) => ({
+    name: getItemName(item),
+    units: item.quantity,
+    price: money(getPrice(item) * item.quantity),
+  }));
+  const orderId = `AH-${Date.now()}`;
+
+  try {
+    await emailjs.send(
+      serviceId,
+      templateId,
+      {
+        email: form.email,
+        order_id: orderId,
+        orders,
+        cost: {
+          shipping: "R 0.00",
+          tax: "R 0.00",
+          total: money(cartTotal.value),
+        },
+      },
+      publicKey,
+    );
+    paymentComplete.value = true;
+  } catch (error) {
+    console.error("EmailJS checkout confirmation failed:", error);
+    paymentError.value = "We could not send your confirmation. Please try again.";
+  }
 }
 
 onMounted(() => {
@@ -88,9 +129,15 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
             <span>✓</span>
             <h2>Thank you for your order.</h2>
             <p>
-              Your payment was received. We’ll email your order confirmation
-              shortly.
+              Your payment was received. A confirmation was sent to
+              {{ form.email }}.
             </p>
+            <div class="payment-success-order">
+              <p v-for="item in cartItems" :key="getItemName(item)">
+                {{ getItemName(item) }} × {{ item.quantity }}
+              </p>
+              <strong>Total: {{ money(cartTotal) }}</strong>
+            </div>
             <a href="/">RETURN TO SHOP</a>
           </div>
 
@@ -101,7 +148,12 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
             </div>
             <label>
               EMAIL ADDRESS
-              <input required type="email" placeholder="you@email.com" />
+              <input
+                v-model="form.email"
+                required
+                type="email"
+                placeholder="you@email.com"
+              />
             </label>
             <label>
               CARDHOLDER NAME
@@ -132,12 +184,18 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
               </label>
             </div>
             <div class="payment-total">
+              <div class="checkout-items">
+                <span v-for="item in cartItems" :key="getItemName(item)">
+                  {{ getItemName(item) }} · Qty {{ item.quantity }}
+                </span>
+              </div>
               <span>Order total</span>
-              <strong>{{ checkoutTotal }}</strong>
+              <strong>{{ money(cartTotal) }}</strong>
             </div>
             <button class="pay-button" type="submit">
-              PAY {{ checkoutTotal }}
+              PAY {{ money(cartTotal) }}
             </button>
+            <p v-if="paymentError" class="payment-error">{{ paymentError }}</p>
             <p class="payment-note">
               Your payment information is encrypted and never stored on this
               site.
@@ -161,7 +219,7 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
 <style scoped>
 .payment-page {
   --paper: #f3eee4;
-  --ink: #160a06;
+  --ink: #200b07;
   --rust: #8f3f1c;
   --muted: #997b69;
   --line: #ded5c7;
@@ -303,10 +361,19 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
   gap: 16px;
 }
 .payment-total {
+  flex-wrap: wrap;
   margin: 12px 0 20px;
   padding-top: 20px;
   border-top: 1px solid var(--line);
   color: var(--muted);
+}
+.checkout-items {
+  flex-basis: 100%;
+  display: grid;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 14px;
+  font-size: 13px;
 }
 .payment-total strong {
   color: var(--ink);
@@ -355,6 +422,27 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
   margin: 0 0 25px;
   color: var(--muted);
   line-height: 1.55;
+}
+.payment-success-order {
+  margin: 0 0 25px;
+  padding: 15px;
+  color: var(--muted);
+  background: #f3eee4;
+  text-align: left;
+}
+.payment-success-order p {
+  margin: 0 0 6px;
+}
+.payment-success-order strong {
+  display: block;
+  margin-top: 12px;
+  color: var(--ink);
+}
+.payment-error {
+  margin: 12px 0 0;
+  color: #9b2c20;
+  font-size: 13px;
+  text-align: center;
 }
 .payment-footer {
   padding: 25px 5.5%;

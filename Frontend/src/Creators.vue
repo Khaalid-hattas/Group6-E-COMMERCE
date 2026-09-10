@@ -455,9 +455,9 @@ const creators = [
     from: "R 900",
   },
   {
-    name: "",
+    name: "Luvo Khwela",
     role: "Painter",
-    location: "",
+    location: "CAPE TOWN, ZA",
     image: "",
     avatar: "",
     featured: true,
@@ -467,7 +467,7 @@ const creators = [
     rating: "5.0",
     reviews: 66,
     tags: ["ABSTRACT OIL", "LARGE FORMAT", "COMMISSIONED INTERIORS"],
-    bio: "Camille paints in long, unbroken sessions — sometimes twelve hours without stopping. Her large-format work is physical, bright, and made to change the feeling of a room.",
+    bio: "Luvo Khwela creates the paintings and artwork featured across Artisan Hub, using expressive colour, texture, and layered marks to give every space a distinct feeling.",
     lead: "6–8 weeks",
     from: "£240",
   },
@@ -490,12 +490,64 @@ const creators = [
   },
 ];
 
+const productMakers = new Set([
+  "Nesta Nala",
+  "Zizipho Poswa",
+  "Beauty Ngxongo",
+  "Design Afrika Weavers",
+  "Carrol Boyes Studio",
+  "Umtha Craftswomen",
+  "Imbali Woodcraft Collective",
+  "Rialheim Studio",
+  "Ditiro Mashigo",
+  "Luvo Khwela",
+  "Nandi Mokoena",
+  "Thandiwe Khumalo",
+  "Sipho Mthembu",
+  "Zinhle Maseko",
+  "Naledi Ndlovu",
+  "Ayanda Maseko",
+  "Lethabo Dlamini",
+  "Bontle Radebe",
+]);
+
+const artworkByCreator = {
+  "Luvo Khwela": new URL("../images/Artwork/abstractimages.jpeg", import.meta.url).href,
+  "Nesta Nala": new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
+  "Beauty Ngxongo": new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
+  "Design Afrika Weavers": new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
+  "Carrol Boyes Studio": new URL("../images/Handcrafted/Essential-holder.jpg", import.meta.url).href,
+  "Umtha Craftswomen": new URL("../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
+  "Zizipho Poswa": new URL("../images/Handmade/sculptures.jpg", import.meta.url).href,
+  "Imbali Woodcraft Collective": new URL("../images/Handcrafted/kitchenset.jpg", import.meta.url).href,
+  "Rialheim Studio": new URL("../images/Handcrafted/potplants.jpg", import.meta.url).href,
+  "Ditiro Mashigo": new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
+  "Nandi Mokoena": new URL("../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
+  "Thandiwe Khumalo": new URL("../images/Handmade/handmadefabric-necklace.jpg", import.meta.url).href,
+  "Sipho Mthembu": new URL("../images/Handmade/wooden-cup.jpg", import.meta.url).href,
+  "Zinhle Maseko": new URL("../images/Handmade/earrings.jpg", import.meta.url).href,
+  "Naledi Ndlovu": new URL("../images/Handmade/vase.jpg", import.meta.url).href,
+  "Ayanda Maseko": new URL("../images/Handmade/juterope-wovenvase.jpg", import.meta.url).href,
+  "Lethabo Dlamini": new URL("../images/Handmade/sculptures.jpg", import.meta.url).href,
+  "Bontle Radebe": new URL("../images/Handmade/botanical-wall-art.webp", import.meta.url).href,
+};
+
+const eligibleCreators = creators.filter(
+  (creator) =>
+    creator.name &&
+    creator.location.endsWith(", ZA") &&
+    productMakers.has(creator.name),
+).map((creator) => ({
+  ...creator,
+  artworkImage: artworkByCreator[creator.name],
+}));
+
 const filteredCreators = computed(() => {
   if (activeFilter.value === "FEATURED")
-    return creators.filter((creator) => creator.featured);
+    return eligibleCreators.filter((creator) => creator.featured);
   if (activeFilter.value === "OPEN")
-    return creators.filter((creator) => creator.accepting);
-  return creators;
+    return eligibleCreators.filter((creator) => creator.accepting);
+  return eligibleCreators;
 });
 
 function openRequest(creator) {
@@ -683,10 +735,10 @@ function submitRequest() {
             class="creator-card"
           >
             <img
-              v-if="creator.image"
+              v-if="creator.artworkImage || creator.image"
               class="creator-image"
-              :src="creator.image"
-              :alt="`${creator.name} working`"
+              :src="creator.artworkImage || creator.image"
+              :alt="`${creator.name} artwork`"
             />
             <div v-else class="creator-image image-placeholder">
               ADD CREATOR IMAGE
@@ -708,7 +760,7 @@ function submitRequest() {
                   }}
                 </div>
                 <div>
-                  <h2>
+                  <h2 class="creator-name">
                     {{ creator.name }}
                     <span v-if="creator.featured" class="featured"
                       >FEATURED</span
@@ -796,7 +848,7 @@ function submitRequest() {
           <label
             >PREFERRED CREATOR (OPTIONAL)<select>
               <option>No preference — match me</option>
-              <option v-for="creator in creators" :key="creator.name || creator.role">
+              <option v-for="creator in eligibleCreators" :key="creator.name">
                 {{ creator.name }} — {{ creator.role }}
               </option>
             </select></label
@@ -851,7 +903,7 @@ function submitRequest() {
         >
           ×</button
         ><div
-          v-if="!selectedCreator.image"
+          v-if="!selectedCreator.artworkImage && !selectedCreator.image"
           class="profile-cover image-placeholder"
         >
           ADD CREATOR IMAGE
@@ -859,8 +911,8 @@ function submitRequest() {
         <img
           v-else
           class="profile-cover"
-          :src="selectedCreator.image"
-          :alt="selectedCreator.name"
+          :src="selectedCreator.artworkImage || selectedCreator.image"
+          :alt="`${selectedCreator.name} artwork`"
         />
         <div class="profile-body">
           <div class="profile-heading">
@@ -1014,7 +1066,7 @@ function submitRequest() {
 <style scoped>
 .creators-page {
   --paper: #f3eee4;
-  --ink: #160a06;
+  --ink: #200b07;
   --rust: #8f3f1c;
   --muted: #997b69;
   --line: #ded5c7;
@@ -1234,6 +1286,10 @@ function submitRequest() {
   min-width: 0;
   border: 1px solid var(--line);
   background: #f8f4ec;
+}
+.creator-name,
+.profile-heading h2 {
+  font-family: var(--font-display);
 }
 .creator-image {
   display: block;

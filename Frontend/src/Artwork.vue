@@ -33,8 +33,8 @@ const bagOpen = ref(false);
 const artworks = [
   {
     title: "Flux Study No. 4",
-    artist: "CAMILLE RENARD",
-    location: "LYON, FR",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Oil on linen",
     dimensions: "90 × 120 cm",
     category: "ABSTRACT",
@@ -47,8 +47,8 @@ const artworks = [
   },
   {
     title: "Terrain I",
-    artist: "MARCUS WEBB",
-    location: "LONDON, UK",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Acrylic + sand on board",
     dimensions: "60 × 80 cm",
     category: "ABSTRACT",
@@ -61,8 +61,8 @@ const artworks = [
   },
   {
     title: "Solvent & Grace",
-    artist: "IFEOMA OSSI",
-    location: "ACCRA, GH",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Encaustic wax on panel",
     dimensions: "50 × 70 cm",
     category: "ABSTRACT",
@@ -75,8 +75,8 @@ const artworks = [
   },
   {
     title: "Primary Field II",
-    artist: "YUKI SHIMIZU",
-    location: "OSAKA, JP",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Acrylic on canvas",
     dimensions: "100 × 100 cm",
     category: "ABSTRACT",
@@ -89,8 +89,8 @@ const artworks = [
   },
   {
     title: "Form Without Function",
-    artist: "ANITA KRUGER",
-    location: "BERLIN, DE",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Archival inkjet print",
     dimensions: "50 × 70 cm",
     category: "PHOTOGRAPHY",
@@ -103,8 +103,8 @@ const artworks = [
   },
   {
     title: "Still Interior",
-    artist: "PAULO MEDINA",
-    location: "SÃO PAULO, BR",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "C-print, museum glass",
     dimensions: "60 × 80 cm",
     category: "PHOTOGRAPHY",
@@ -117,8 +117,8 @@ const artworks = [
   },
   {
     title: "Botanical Series III",
-    artist: "",
-    location: "",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Pigment prints",
     dimensions: "Set of 3, 40 × 60 cm",
     category: "PHOTOGRAPHY",
@@ -131,8 +131,8 @@ const artworks = [
   },
   {
     title: "Burden Study",
-    artist: "",
-    location: "",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Cast bronze",
     dimensions: "22 × 14 × 10 cm",
     category: "SCULPTURE",
@@ -464,7 +464,7 @@ const cartTotal = computed(() =>
 <style scoped>
 .artwork-page {
   --paper: #f3eee4;
-  --ink: #160a06;
+  --ink: #200b07;
   --rust: #8f3f1c;
   --muted: #997b69;
   --line: #ded5c7;
