@@ -463,7 +463,7 @@ const cartTotal = computed(() =>
   --paper: #f3eee4;
   --ink: #355b45;
   --rust: #8f3f1c;
-  --muted: #5e7b66;
+  --muted: #997b69;
   --line: #ded5c7;
   min-height: 100vh;
   color: var(--ink);

@@ -10,6 +10,7 @@ import {
   changeCartQuantity,
   getItemName,
   getItemType,
+  getPrice,
   isAuthenticated,
   removeCartItem,
 } from "./cartStore";
@@ -184,7 +185,7 @@ const cartCount = computed(() =>
 );
 const cartTotal = computed(() =>
   cartItems.value.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + getPrice(item) * item.quantity,
     0,
   ),
 );
@@ -261,7 +262,7 @@ function removeItem(item) {
           <div class="bag-item-info">
             <p>{{ getItemName(item) }}</p>
             <small>{{ item.maker || item.artist || getItemType(item) }} · Qty {{ item.quantity }}</small
-            ><strong>{{ money(item.price * item.quantity) }}</strong>
+            ><strong>{{ money(getPrice(item) * item.quantity) }}</strong>
             <div class="quantity-controls">
               <button
                 type="button"
@@ -428,7 +429,7 @@ function removeItem(item) {
   --paper: #f3eee4;
   --ink: #355b45;
   --rust: #8f3f1c;
-  --muted: #5e7b66;
+  --muted: #997b69;
   --line: #ded5c7;
   color: var(--ink);
   background: var(--paper);
@@ -754,7 +755,7 @@ function removeItem(item) {
   border: 0;
   padding: 16px;
   color: #fff;
-  background: var(--ink);
+  background: #200b07;
   letter-spacing: 0.12em;
   font-weight: 700;
   opacity: 0;
