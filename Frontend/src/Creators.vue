@@ -1066,9 +1066,9 @@ function submitRequest() {
 <style scoped>
 .creators-page {
   --paper: #f3eee4;
-  --ink: #200b07;
+  --ink: #355b45;
   --rust: #8f3f1c;
-  --muted: #997b69;
+  --muted: #5e7b66;
   --line: #ded5c7;
   min-height: 100vh;
   color: var(--ink);

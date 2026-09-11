@@ -28,8 +28,6 @@ const artworkImages = [
 
 const activeCategory = ref("ALL");
 const selectedArtwork = ref(null);
-const email = ref("");
-const subscribed = ref(false);
 const bagOpen = ref(false);
 const router = useRouter();
 
@@ -155,10 +153,6 @@ const filteredArtworks = computed(() =>
     ? artworks
     : artworks.filter((artwork) => artwork.category === activeCategory.value),
 );
-
-function subscribe() {
-  if (email.value) subscribed.value = true;
-}
 
 function addToBag(artwork) {
   if (isAuthenticated.value) {
@@ -370,14 +364,7 @@ const cartTotal = computed(() =>
         <p class="kicker">GALLERY DISPATCHES</p>
         <h2>New works. Studio visits.<br /><em>First access.</em></h2>
         <p>Collectors on this list get 48-hour early access to new arrivals.</p>
-        <form @submit.prevent="subscribe">
-          <input
-            v-model="email"
-            type="email"
-            required
-            placeholder="your@email.com"
-          /><button type="submit">{{ subscribed ? "JOINED" : "JOIN" }}</button>
-        </form>
+        <router-link class="newsletter-button" to="/login">JOIN</router-link>
       </section>
     </main>
 
@@ -474,9 +461,9 @@ const cartTotal = computed(() =>
 <style scoped>
 .artwork-page {
   --paper: #f3eee4;
-  --ink: #200b07;
+  --ink: #355b45;
   --rust: #8f3f1c;
-  --muted: #997b69;
+  --muted: #5e7b66;
   --line: #ded5c7;
   min-height: 100vh;
   color: var(--ink);
@@ -770,34 +757,27 @@ const cartTotal = computed(() =>
 }
 .newsletter h2 {
   margin: 0 0 17px;
+  color: #355b45;
   font:
     700 31px/1.2 "Playfair Display",
     Georgia,
     serif;
 }
 .newsletter > p:not(.kicker) {
-  color: var(--muted);
+  color: #5e7b66;
 }
-.newsletter form {
-  display: flex;
-  max-width: 460px;
-  margin: 28px auto 0;
-}
-.newsletter input {
-  flex: 1;
-  border: 1px solid var(--line);
-  padding: 14px 18px;
-  font: inherit;
-}
-.newsletter button,
+.newsletter-button,
 .primary-button {
+  display: inline-block;
   border: 0;
-  padding: 0 26px;
+  margin-top: 28px;
+  padding: 14px 30px;
   color: #fff;
   background: var(--rust);
   letter-spacing: 0.12em;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
 .site-footer {
   display: grid;
