@@ -1,6 +1,8 @@
 import { computed, ref, watch } from "vue";
 
 const storageKey = "artisan-hub-cart";
+const pendingItemKey = "artisan-hub-pending-cart-item";
+const authKey = "artisan-hub-authenticated";
 
 function loadCart() {
   try {
@@ -11,6 +13,12 @@ function loadCart() {
 }
 
 export const cartItems = ref(loadCart());
+export const isAuthenticated = ref(localStorage.getItem(authKey) === "true");
+
+export function signIn() {
+  localStorage.setItem(authKey, "true");
+  isAuthenticated.value = true;
+}
 
 export const cartCount = computed(() =>
   cartItems.value.reduce((total, item) => total + item.quantity, 0),
@@ -45,6 +53,24 @@ export function addCartItem(product) {
     existing.quantity += 1;
   } else {
     cartItems.value.push({ ...product, quantity: 1 });
+  }
+}
+
+export function savePendingCartItem(product) {
+  sessionStorage.setItem(pendingItemKey, JSON.stringify(product));
+}
+
+export function addPendingCartItem() {
+  const pendingItem = sessionStorage.getItem(pendingItemKey);
+  if (!pendingItem) return false;
+
+  try {
+    addCartItem(JSON.parse(pendingItem));
+    sessionStorage.removeItem(pendingItemKey);
+    return true;
+  } catch {
+    sessionStorage.removeItem(pendingItemKey);
+    return false;
   }
 }
 

@@ -1,14 +1,17 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
+  savePendingCartItem,
   cartCount,
   cartItems,
   changeCartQuantity,
   getItemName,
   getItemType,
+  isAuthenticated,
   removeCartItem,
 } from "./cartStore";
 
@@ -28,6 +31,7 @@ const selectedArtwork = ref(null);
 const email = ref("");
 const subscribed = ref(false);
 const bagOpen = ref(false);
+const router = useRouter();
 
 // Add your own image path and rand price to each artwork object.
 const artworks = [
@@ -157,9 +161,15 @@ function subscribe() {
 }
 
 function addToBag(artwork) {
-  addCartItem(artwork);
-  selectedArtwork.value = null;
-  bagOpen.value = true;
+  if (isAuthenticated.value) {
+    addCartItem(artwork);
+    selectedArtwork.value = null;
+    bagOpen.value = true;
+    return;
+  }
+
+  savePendingCartItem(artwork);
+  router.push({ path: "/login", query: { redirect: "/artwork" } });
 }
 
 function changeQuantity(item, amount) {

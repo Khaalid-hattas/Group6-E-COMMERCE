@@ -171,6 +171,7 @@
 <script setup>
 import { ref, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { addPendingCartItem, signIn } from "../cartStore";
 
 const route = useRoute();
 const router = useRouter();
@@ -214,6 +215,8 @@ function handleRegister() {
         }),
   };
   console.log("Register payload:", payload);
-  router.push({ name: "landing" });
+  signIn();
+  addPendingCartItem();
+  router.push(route.query.redirect || "/");
 }
 </script>

@@ -1,18 +1,22 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
+  savePendingCartItem,
   cartItems,
   changeCartQuantity,
   getItemName,
   getItemType,
+  isAuthenticated,
   removeCartItem,
 } from "./cartStore";
 
 const activeCategory = ref("ALL");
 const cartOpen = ref(false);
+const router = useRouter();
 
 const makers = [
   {
@@ -190,8 +194,14 @@ function money(value) {
 }
 
 function addToCart(product) {
-  addCartItem(product);
-  cartOpen.value = true;
+  if (isAuthenticated.value) {
+    addCartItem(product);
+    cartOpen.value = true;
+    return;
+  }
+
+  savePendingCartItem(product);
+  router.push({ path: "/login", query: { redirect: "/handcraft" } });
 }
 
 function changeQuantity(item, amount) {
