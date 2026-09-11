@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
-const db = require('../config/db');
+import bcrypt from 'bcryptjs';
+import db from '../config/db.js';
 
 async function loginUser(req, res) {
     const { email, password } = req.body;
@@ -61,6 +61,4 @@ async function loginUser(req, res) {
     }
 }
 
-module.exports = {
-    loginUser
-};
+export { loginUser };
