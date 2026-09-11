@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+
+# Build and coverage output
+dist/
+coverage/
+.vite/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and runtime output
+*.log
+logs/
+
+# Local databases and uploads
+*.sqlite
+*.sqlite3
+*.db
+uploads/
+
+# Editor and OS files
+.vscode/*.code-workspace
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
