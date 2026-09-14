@@ -1,14 +1,17 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
+  savePendingCartItem,
   cartCount,
   cartItems,
   changeCartQuantity,
   getItemName,
   getItemType,
+  isAuthenticated,
   removeCartItem,
 } from "./cartStore";
 
@@ -16,6 +19,7 @@ const search = ref("");
 const activeGroup = ref("ALL");
 const activeType = ref("ALL");
 const cartOpen = ref(false);
+const router = useRouter();
 
 const products = [
   {
@@ -132,8 +136,14 @@ const filteredProducts = computed(() =>
   }),
 );
 function addToCart(product) {
-  addCartItem(product);
-  cartOpen.value = true;
+  if (isAuthenticated.value) {
+    addCartItem(product);
+    cartOpen.value = true;
+    return;
+  }
+
+  savePendingCartItem(product);
+  router.push({ path: "/login", query: { redirect: "/handmade" } });
 }
 
 function increaseQuantity(product) {
@@ -453,7 +463,7 @@ const cartTotal = computed(() =>
   width: min(430px, 100vw);
   display: flex;
   flex-direction: column;
-  color: #160a06;
+  color: #200b07;
   background: #f3eee4;
   box-shadow: -12px 0 35px rgba(22, 10, 6, 0.18);
 }

@@ -1,14 +1,17 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
+  savePendingCartItem,
   cartCount,
   cartItems,
   changeCartQuantity,
   getItemName,
   getItemType,
+  isAuthenticated,
   removeCartItem,
 } from "./cartStore";
 
@@ -25,16 +28,15 @@ const artworkImages = [
 
 const activeCategory = ref("ALL");
 const selectedArtwork = ref(null);
-const email = ref("");
-const subscribed = ref(false);
 const bagOpen = ref(false);
+const router = useRouter();
 
 // Add your own image path and rand price to each artwork object.
 const artworks = [
   {
     title: "Flux Study No. 4",
-    artist: "CAMILLE RENARD",
-    location: "LYON, FR",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Oil on linen",
     dimensions: "90 × 120 cm",
     category: "ABSTRACT",
@@ -47,8 +49,8 @@ const artworks = [
   },
   {
     title: "Terrain I",
-    artist: "MARCUS WEBB",
-    location: "LONDON, UK",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Acrylic + sand on board",
     dimensions: "60 × 80 cm",
     category: "ABSTRACT",
@@ -61,8 +63,8 @@ const artworks = [
   },
   {
     title: "Solvent & Grace",
-    artist: "IFEOMA OSSI",
-    location: "ACCRA, GH",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Encaustic wax on panel",
     dimensions: "50 × 70 cm",
     category: "ABSTRACT",
@@ -75,8 +77,8 @@ const artworks = [
   },
   {
     title: "Primary Field II",
-    artist: "YUKI SHIMIZU",
-    location: "OSAKA, JP",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Acrylic on canvas",
     dimensions: "100 × 100 cm",
     category: "ABSTRACT",
@@ -89,8 +91,8 @@ const artworks = [
   },
   {
     title: "Form Without Function",
-    artist: "ANITA KRUGER",
-    location: "BERLIN, DE",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Archival inkjet print",
     dimensions: "50 × 70 cm",
     category: "PHOTOGRAPHY",
@@ -103,8 +105,8 @@ const artworks = [
   },
   {
     title: "Still Interior",
-    artist: "PAULO MEDINA",
-    location: "SÃO PAULO, BR",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "C-print, museum glass",
     dimensions: "60 × 80 cm",
     category: "PHOTOGRAPHY",
@@ -117,8 +119,8 @@ const artworks = [
   },
   {
     title: "Botanical Series III",
-    artist: "",
-    location: "",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Pigment prints",
     dimensions: "Set of 3, 40 × 60 cm",
     category: "PHOTOGRAPHY",
@@ -131,8 +133,8 @@ const artworks = [
   },
   {
     title: "Burden Study",
-    artist: "",
-    location: "",
+    artist: "LUVO KHWELA",
+    location: "CAPE TOWN, ZA",
     medium: "Cast bronze",
     dimensions: "22 × 14 × 10 cm",
     category: "SCULPTURE",
@@ -152,14 +154,16 @@ const filteredArtworks = computed(() =>
     : artworks.filter((artwork) => artwork.category === activeCategory.value),
 );
 
-function subscribe() {
-  if (email.value) subscribed.value = true;
-}
-
 function addToBag(artwork) {
-  addCartItem(artwork);
-  selectedArtwork.value = null;
-  bagOpen.value = true;
+  if (isAuthenticated.value) {
+    addCartItem(artwork);
+    selectedArtwork.value = null;
+    bagOpen.value = true;
+    return;
+  }
+
+  savePendingCartItem(artwork);
+  router.push({ path: "/login", query: { redirect: "/artwork" } });
 }
 
 function changeQuantity(item, amount) {
@@ -360,14 +364,7 @@ const cartTotal = computed(() =>
         <p class="kicker">GALLERY DISPATCHES</p>
         <h2>New works. Studio visits.<br /><em>First access.</em></h2>
         <p>Collectors on this list get 48-hour early access to new arrivals.</p>
-        <form @submit.prevent="subscribe">
-          <input
-            v-model="email"
-            type="email"
-            required
-            placeholder="your@email.com"
-          /><button type="submit">{{ subscribed ? "JOINED" : "JOIN" }}</button>
-        </form>
+        <router-link class="newsletter-button" to="/login">JOIN</router-link>
       </section>
     </main>
 
@@ -464,7 +461,7 @@ const cartTotal = computed(() =>
 <style scoped>
 .artwork-page {
   --paper: #f3eee4;
-  --ink: #160a06;
+  --ink: #355b45;
   --rust: #8f3f1c;
   --muted: #997b69;
   --line: #ded5c7;
@@ -760,34 +757,27 @@ const cartTotal = computed(() =>
 }
 .newsletter h2 {
   margin: 0 0 17px;
+  color: #355b45;
   font:
     700 31px/1.2 "Playfair Display",
     Georgia,
     serif;
 }
 .newsletter > p:not(.kicker) {
-  color: var(--muted);
+  color: #5e7b66;
 }
-.newsletter form {
-  display: flex;
-  max-width: 460px;
-  margin: 28px auto 0;
-}
-.newsletter input {
-  flex: 1;
-  border: 1px solid var(--line);
-  padding: 14px 18px;
-  font: inherit;
-}
-.newsletter button,
+.newsletter-button,
 .primary-button {
+  display: inline-block;
   border: 0;
-  padding: 0 26px;
+  margin-top: 28px;
+  padding: 14px 30px;
   color: #fff;
   background: var(--rust);
   letter-spacing: 0.12em;
   font-weight: 700;
   cursor: pointer;
+  text-decoration: none;
 }
 .site-footer {
   display: grid;

@@ -81,6 +81,7 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { addPendingCartItem, signIn } from "../cartStore";
 
 const role = ref("buyer");
 const form = reactive({ email: "", password: "" });
@@ -89,6 +90,8 @@ const router = useRouter();
 
 function handleLogin() {
   console.log("Login payload:", { role: role.value, ...form });
-  router.push({ name: "landing" });
+  signIn();
+  addPendingCartItem();
+  router.push(route.query.redirect || "/");
 }
 </script>

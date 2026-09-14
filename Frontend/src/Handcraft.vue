@@ -1,18 +1,23 @@
 <script setup>
 import { computed, ref } from "vue";
+import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
   addCartItem,
+  savePendingCartItem,
   cartItems,
   changeCartQuantity,
   getItemName,
   getItemType,
+  getPrice,
+  isAuthenticated,
   removeCartItem,
 } from "./cartStore";
 
 const activeCategory = ref("ALL");
 const cartOpen = ref(false);
+const router = useRouter();
 
 const makers = [
   {
@@ -180,7 +185,7 @@ const cartCount = computed(() =>
 );
 const cartTotal = computed(() =>
   cartItems.value.reduce(
-    (total, item) => total + item.price * item.quantity,
+    (total, item) => total + getPrice(item) * item.quantity,
     0,
   ),
 );
@@ -190,8 +195,14 @@ function money(value) {
 }
 
 function addToCart(product) {
-  addCartItem(product);
-  cartOpen.value = true;
+  if (isAuthenticated.value) {
+    addCartItem(product);
+    cartOpen.value = true;
+    return;
+  }
+
+  savePendingCartItem(product);
+  router.push({ path: "/login", query: { redirect: "/handcraft" } });
 }
 
 function changeQuantity(item, amount) {
@@ -251,7 +262,7 @@ function removeItem(item) {
           <div class="bag-item-info">
             <p>{{ getItemName(item) }}</p>
             <small>{{ item.maker || item.artist || getItemType(item) }} · Qty {{ item.quantity }}</small
-            ><strong>{{ money(item.price * item.quantity) }}</strong>
+            ><strong>{{ money(getPrice(item) * item.quantity) }}</strong>
             <div class="quantity-controls">
               <button
                 type="button"
@@ -416,7 +427,7 @@ function removeItem(item) {
 <style scoped>
 .handcraft-page {
   --paper: #f3eee4;
-  --ink: #160a06;
+  --ink: #355b45;
   --rust: #8f3f1c;
   --muted: #997b69;
   --line: #ded5c7;
@@ -744,7 +755,7 @@ function removeItem(item) {
   border: 0;
   padding: 16px;
   color: #fff;
-  background: var(--ink);
+  background: #200b07;
   letter-spacing: 0.12em;
   font-weight: 700;
   opacity: 0;
