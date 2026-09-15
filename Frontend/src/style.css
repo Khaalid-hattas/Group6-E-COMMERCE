@@ -833,6 +833,13 @@ button {
   color: #fff;
   background: var(--dark);
 }
+.footer-logo {
+  width: 150px;
+  height: auto;
+  display: block;
+  margin-bottom: 15px;
+}
+
 .footer-brand {
   max-width: 370px;
 }

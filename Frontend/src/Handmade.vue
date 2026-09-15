@@ -419,27 +419,29 @@ const cartTotal = computed(() =>
     </main>
     <footer id="about" class="site-footer">
       <div class="footer-brand">
-        <span class="logo-mark">A</span><strong>ARTISAN HUB.</strong>
+        <img class="footer-logo" :src="logo" alt="Artisan Hub" />
         <p>
-          Connecting people with independent makers since 2021. Every piece
+          Connecting people with independent makers. Every piece
           signed. Every maker visited.
         </p>
       </div>
-      <div>
-        <p class="footer-title">SHOP</p>
-        <a href="#browse">Handcrafted</a><a href="#browse">Artwork</a
-        ><a href="#browse">New Arrivals</a><a href="#browse">Sale</a>
-      </div>
-      <div>
-        <p class="footer-title">COMPANY</p>
-        <a href="#about">About Us</a><a href="#about">How It Works</a
-        ><a href="#makers">For Makers</a><a href="#about">Press</a>
-      </div>
-      <div>
-        <p class="footer-title">HELP</p>
-        <a href="#about">Shipping &amp; Returns</a><a href="#about">FAQ</a
-        ><a href="#about">Contact</a><a href="#about">Track Order</a>
-      </div>
+        <div>
+          <p class="footer-title">NAVIGATION</p>
+          <router-link to="/">Home</router-link>
+          <router-link to="/handcraft">Handcrafted</router-link>
+        </div>
+
+        <div>
+          <p class="footer-title">EXPLORE</p>
+          <router-link to="/handmade">Handmade</router-link>
+          <router-link to="/artwork">Artwork</router-link>
+        </div>
+
+        <div>
+          <p class="footer-title">COMMUNITY</p>
+          <router-link to="/creators">Creators</router-link>
+          <router-link to="/about">About Us</router-link>
+        </div>
     </footer>
   </div>
 </template>
