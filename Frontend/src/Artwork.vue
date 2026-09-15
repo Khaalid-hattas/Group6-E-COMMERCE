@@ -1,6 +1,8 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { getArtwork } from "./api";
+import { resolveImageUrl } from "./imageAssets";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
@@ -15,144 +17,51 @@ import {
   removeCartItem,
 } from "./cartStore";
 
-const artworkImages = [
-  new URL("../images/Artwork/abstractimages.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/aspire.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/banana.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/birthmom.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/construction.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/empowering.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/gogo.jpeg", import.meta.url).href,
-  new URL("../images/Artwork/women.jpeg", import.meta.url).href,
-];
-
 const activeCategory = ref("ALL");
 const selectedArtwork = ref(null);
 const bagOpen = ref(false);
 const router = useRouter();
 
-// Add your own image path and rand price to each artwork object.
-const artworks = [
-  {
-    title: "Flux Study No. 4",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Oil on linen",
-    dimensions: "90 × 120 cm",
-    category: "ABSTRACT",
-    badge: "ORIGINAL",
-    edition: "Original",
-    image: artworkImages[0],
-    price: "R 6000",
-    description:
-      "A study in tension — oil pulled across linen in a single unbroken session. No underdrawing.",
-  },
-  {
-    title: "Terrain I",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Acrylic + sand on board",
-    dimensions: "60 × 80 cm",
-    category: "ABSTRACT",
-    badge: "1 OF 1",
-    edition: "1 of 1",
-    image: artworkImages[1],
-    price: "R 6799",
-    description:
-      "Built in layers of mineral pigment and sand, this work holds the quiet energy of a changing landscape.",
-  },
-  {
-    title: "Solvent & Grace",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Encaustic wax on panel",
-    dimensions: "50 × 70 cm",
-    category: "ABSTRACT",
-    badge: "ORIGINAL",
-    edition: "Original",
-    image: artworkImages[2],
-    price: "R 3350",
-    description:
-      "Colour, texture, and light meet in a warm, tactile composition made in the artist's Accra studio.",
-  },
-  {
-    title: "Primary Field II",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Acrylic on canvas",
-    dimensions: "100 × 100 cm",
-    category: "ABSTRACT",
-    badge: "FEATURED",
-    edition: "Original",
-    image: artworkImages[3],
-    price: "R 2999",
-    description:
-      "A colour field broken only by the painter's hesitation. Exhibited in Osaka, 2025.",
-  },
-  {
-    title: "Form Without Function",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Archival inkjet print",
-    dimensions: "50 × 70 cm",
-    category: "PHOTOGRAPHY",
-    badge: "",
-    edition: "Ed. of 20",
-    image: artworkImages[4],
-    price: "R 1750",
-    description:
-      "An archival print exploring the relationship between shape, shadow, and the spaces objects leave behind.",
-  },
-  {
-    title: "Still Interior",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "C-print, museum glass",
-    dimensions: "60 × 80 cm",
-    category: "PHOTOGRAPHY",
-    badge: "",
-    edition: "Ed. of 10",
-    image: artworkImages[5],
-    price: "R 2499",
-    description:
-      "A quiet interior study made with a large-format camera and printed on museum-grade paper.",
-  },
-  {
-    title: "Botanical Series III",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Pigment prints",
-    dimensions: "Set of 3, 40 × 60 cm",
-    category: "PHOTOGRAPHY",
-    badge: "",
-    edition: "Ed. of 15",
-    image: artworkImages[6],
-    price: "R 8999",
-    description:
-      "Three pigment prints tracing the shape and rhythm of plants through soft, natural light.",
-  },
-  {
-    title: "Burden Study",
-    artist: "LUVO KHWELA",
-    location: "CAPE TOWN, ZA",
-    medium: "Cast bronze",
-    dimensions: "22 × 14 × 10 cm",
-    category: "SCULPTURE",
-    badge: "",
-    edition: "Ed. of 8",
-    image: artworkImages[7],
-    price: "R 2500",
-    description:
-      "A compact bronze sculpture considering weight, movement, and the human instinct to carry.",
-  },
-];
+const artworks = ref([]);
+const isLoading = ref(true);
+const loadError = ref(false);
 
 const categories = ["ALL", "ABSTRACT", "PHOTOGRAPHY", "SCULPTURE"];
 const filteredArtworks = computed(() =>
   activeCategory.value === "ALL"
-    ? artworks
-    : artworks.filter((artwork) => artwork.category === activeCategory.value),
+    ? artworks.value
+    : artworks.value.filter(
+        (artwork) => artwork.category === activeCategory.value,
+      ),
 );
+
+async function loadArtworks() {
+  isLoading.value = true;
+  loadError.value = false;
+  try {
+    const items = await getArtwork();
+    artworks.value = items.map((item) => ({
+      title: item.name,
+      artist: item.creator_name,
+      location: item.creator_location,
+      medium: item.medium,
+      dimensions: item.dimensions,
+      category: item.style_category?.toUpperCase() || "ARTWORK",
+      badge: item.edition || "",
+      edition: item.edition || "",
+      image: resolveImageUrl(item.image_url),
+      price: `R ${item.price}`,
+      description: item.description,
+    }));
+  } catch (error) {
+    console.error(error);
+    loadError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(loadArtworks);
 
 function addToBag(artwork) {
   if (isAuthenticated.value) {
@@ -320,7 +229,12 @@ const cartTotal = computed(() =>
             </button>
           </div>
         </div>
-        <div class="artwork-grid">
+        <p v-if="isLoading" class="loading-state">Loading artwork...</p>
+        <div v-else-if="loadError" class="error-state">
+          <p>Couldn't load artwork right now. Please try again later.</p>
+          <button type="button" @click="loadArtworks">Retry</button>
+        </div>
+        <div v-else-if="filteredArtworks.length" class="artwork-grid">
           <article
             v-for="artwork in filteredArtworks"
             :key="artwork.title"
@@ -350,6 +264,7 @@ const cartTotal = computed(() =>
             </div>
           </article>
         </div>
+        <p v-else class="empty-state">No artwork found in this category.</p>
       </section>
       <section class="commission-banner">
         <p class="kicker">COMMISSION</p>
@@ -1091,6 +1006,21 @@ const cartTotal = computed(() =>
   background: transparent;
   letter-spacing: 0.1em;
   font-weight: 700;
+  cursor: pointer;
+}
+.loading-state,
+.error-state,
+.empty-state {
+  padding: 60px 3.2%;
+  text-align: center;
+  color: var(--muted);
+}
+.error-state button {
+  margin-top: 14px;
+  padding: 10px 18px;
+  border: 1px solid var(--rust);
+  color: var(--rust);
+  background: transparent;
   cursor: pointer;
 }
 @media (max-width: 1050px) {

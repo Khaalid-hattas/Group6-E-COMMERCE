@@ -1,6 +1,8 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { getHandmade } from "./api";
+import { resolveImageUrl } from "./imageAssets";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
@@ -21,97 +23,10 @@ const activeType = ref("ALL");
 const cartOpen = ref(false);
 const router = useRouter();
 
-const products = [
-  {
-    name: "Beaded Heritage Necklace",
-    maker: "NANDI MOKOENA · JOHANNESBURG, ZA",
-    type: "NECKLACE",
-    group: "JEWELLERY",
-    image: new URL("../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
-    price: "R 399.99",
-    material: "Glass beads · Hand-strung",
-    note: "A colourful statement necklace built bead by bead in Nandi's Johannesburg studio.",
-    badge: "BESTSELLER",
-  },
-  {
-    name: "Woven Fabric Statement Necklace",
-    maker: "THANDIWE KHUMALO · SOWETO, ZA",
-    type: "NECKLACE",
-    group: "JEWELLERY",
-    image: new URL("../images/Handmade/handmadefabric-necklace.jpg", import.meta.url).href,
-    price: "R 86",
-    material: "Hand-dyed fabric · Recycled beads",
-    note: "Layered fabric and beadwork shaped into a bold, lightweight everyday necklace.",
-  },
-  {
-    name: "Carved Wooden Cup",
-    maker: "SIPHO MTHEMBU · DURBAN, ZA",
-    type: "CUP",
-    group: "JEWELLERY",
-    image: new URL("../images/Handmade/wooden-cup.jpg", import.meta.url).href,
-    price: "R 94",
-    material: "Indigenous wood · Hand-carved",
-    note: "A warm, tactile drinking cup carved from locally sourced wood and finished by hand.",
-    badge: "NEW",
-    badgeClass: "green",
-  },
-  {
-    name: "Beaded Drop Earrings",
-    maker: "ZINHLE MASEKO · CAPE TOWN, ZA",
-    type: "EARRINGS",
-    group: "JEWELLERY",
-    image: new URL("../images/Handmade/earrings.jpg", import.meta.url).href,
-    price: "R 72",
-    material: "Glass beads · Brass findings",
-    note: "Light-catching drop earrings assembled by hand in small batches.",
-    badge: "SALE",
-    badgeClass: "rust",
-  },
-  {
-    name: "Hand-thrown Terracotta Vase",
-    maker: "NALEDI NDLOVU · MABOPANE, ZA",
-    type: "VASE",
-    group: "ORNAMENTS",
-    image: new URL("../images/Handmade/vase.jpg", import.meta.url).href,
-    price: "R 115",
-    material: "Terracotta clay · Wheel-thrown",
-    note: "A softly shaped terracotta vase made slowly on the wheel and finished with a natural glaze.",
-  },
-  {
-    name: "Jute Rope Woven Vase",
-    maker: "AYANDA MASEKO · GQEBERHA, ZA",
-    type: "VASE",
-    group: "ORNAMENTS",
-    image: new URL("../images/Handmade/juterope-wovenvase.jpg", import.meta.url).href,
-    price: "R 162",
-    material: "Jute rope · Recycled fibre form",
-    note: "A sculptural woven vase built from natural jute rope for dried stems and grasses.",
-    badge: "NEW",
-    badgeClass: "green",
-  },
-  {
-    name: "Hand-carved Story Sculpture",
-    maker: "LETHABO DLAMINI · PRETORIA, ZA",
-    type: "SCULPTURE",
-    group: "ORNAMENTS",
-    image: new URL("../images/Handmade/sculptures.jpg", import.meta.url).href,
-    price: "R 94",
-    material: "Carved wood · Hand-finished",
-    note: "A characterful sculptural form carved by hand, with every mark left visible.",
-  },
-  {
-    name: "Botanical Pressed Wall Art",
-    maker: "BONTLE RADEBE · BLOEMFONTEIN, ZA",
-    type: "WALL ART",
-    group: "ORNAMENTS",
-    image: new URL("../images/Handmade/botanical-wall-art.webp", import.meta.url).href,
-    price: "R 78",
-    material: "Pressed botanicals · Natural paper",
-    note: "A delicate botanical composition arranged and pressed by hand for a quiet wall display.",
-    badge: "LIMITED",
-    badgeClass: "green",
-  },
-];
+const products = ref([]);
+const isLoading = ref(true);
+const loadError = ref(false);
+
 const types = [
   "ALL",
   "NECKLACE",
@@ -122,8 +37,22 @@ const types = [
   "SCULPTURE",
   "WALL ART",
 ];
+
+// Temporary stand-in until the backend joins categories and
+// returns a real group. Maps each known product_type to the
+// broader group used by the JEWELLERY / ORNAMENTS tabs.
+const HANDMADE_GROUPS = {
+  NECKLACE: "JEWELLERY",
+  EARRINGS: "JEWELLERY",
+  RING: "JEWELLERY",
+  CUP: "ORNAMENTS",
+  VASE: "ORNAMENTS",
+  SCULPTURE: "ORNAMENTS",
+  "WALL ART": "ORNAMENTS",
+};
+
 const filteredProducts = computed(() =>
-  products.filter((product) => {
+  products.value.filter((product) => {
     const term = search.value.trim().toLowerCase();
     return (
       (!term ||
@@ -135,6 +64,37 @@ const filteredProducts = computed(() =>
     );
   }),
 );
+
+async function loadProducts() {
+  isLoading.value = true;
+  loadError.value = false;
+  try {
+    const items = await getHandmade();
+    products.value = items.map((item) => {
+      const type = item.product_type?.toUpperCase() || "HANDMADE";
+      return {
+        name: item.name,
+        maker: `${item.creator_name} · ${item.creator_location}`,
+        type,
+        group: HANDMADE_GROUPS[type] || "ORNAMENTS",
+        image: resolveImageUrl(item.image_url),
+        price: `R ${item.price}`,
+        material: item.material,
+        note: item.description,
+        badge: item.badge,
+        badgeClass: item.badge_class,
+      };
+    });
+  } catch (error) {
+    console.error(error);
+    loadError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(loadProducts);
+
 function addToCart(product) {
   if (isAuthenticated.value) {
     addCartItem(product);
@@ -165,7 +125,6 @@ function itemTotal(item) {
 function itemPrice(item) {
   return Number(String(item.price).replace(/[^0-9.]/g, ""));
 }
-
 
 const cartTotal = computed(() =>
   cartItems.value.reduce(
@@ -362,7 +321,12 @@ const cartTotal = computed(() =>
             {{ type }}
           </button>
         </div>
-        <div v-if="filteredProducts.length" class="product-grid">
+        <p v-if="isLoading" class="loading-state">Loading pieces...</p>
+        <div v-else-if="loadError" class="error-state">
+          <p>Couldn't load pieces right now. Please try again later.</p>
+          <button type="button" @click="loadProducts">Retry</button>
+        </div>
+        <div v-else-if="filteredProducts.length" class="product-grid">
           <article
             v-for="product in filteredProducts"
             :key="product.name"
@@ -597,6 +561,20 @@ const cartTotal = computed(() =>
   background: #200b07;
   letter-spacing: 0.12em;
   font-weight: 700;
+}
+.loading-state,
+.error-state,
+.empty-state {
+  padding: 60px 0;
+  text-align: center;
+  color: #997b69;
+}
+.error-state button {
+  margin-top: 14px;
+  padding: 10px 18px;
+  border: 1px solid #8f3f1c;
+  color: #8f3f1c;
+  background: transparent;
 }
 @media (max-width: 760px) {
   .bag-heading {
