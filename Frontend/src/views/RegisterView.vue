@@ -215,7 +215,7 @@ function handleRegister() {
         }),
   };
   console.log("Register payload:", payload);
-  signIn();
+  signIn(null, payload);
   addPendingCartItem();
   router.push(route.query.redirect || "/");
 }

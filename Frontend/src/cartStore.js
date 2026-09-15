@@ -2,7 +2,8 @@ import { computed, ref, watch } from "vue";
 
 const storageKey = "artisan-hub-cart";
 const pendingItemKey = "artisan-hub-pending-cart-item";
-const authKey = "artisan-hub-authenticated";
+const tokenKey = "artisan-hub-jwt";
+const userKey = "artisan-hub-user";
 
 function loadCart() {
   try {
@@ -12,12 +13,60 @@ function loadCart() {
   }
 }
 
-export const cartItems = ref(loadCart());
-export const isAuthenticated = ref(localStorage.getItem(authKey) === "true");
+function loadUser() {
+  try {
+    return JSON.parse(localStorage.getItem(userKey) || "null");
+  } catch {
+    return null;
+  }
+}
 
-export function signIn() {
-  localStorage.setItem(authKey, "true");
-  isAuthenticated.value = true;
+export const cartItems = ref(loadCart());
+export const token = ref(localStorage.getItem(tokenKey) || null);
+export const currentUser = ref(loadUser());
+export const isAuthenticated = computed(() => Boolean(token.value));
+
+/**
+ * Creates a structured JWT token (header.payload.signature)
+ */
+export function createMockJwt(payload = {}) {
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const body = btoa(
+    JSON.stringify({
+      ...payload,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 86400,
+    })
+  );
+  const signature = btoa("artisan-hub-signature");
+  return `${header}.${body}.${signature}`;
+}
+
+export function signIn(jwtToken, userData = null) {
+  const finalToken = jwtToken || createMockJwt(userData || { role: "buyer" });
+  token.value = finalToken;
+  localStorage.setItem(tokenKey, finalToken);
+
+  if (userData) {
+    currentUser.value = userData;
+    localStorage.setItem(userKey, JSON.stringify(userData));
+  }
+}
+
+export function signOut() {
+  token.value = null;
+  currentUser.value = null;
+  localStorage.removeItem(tokenKey);
+  localStorage.removeItem(userKey);
+}
+
+export function clearCart() {
+  cartItems.value = [];
+  localStorage.removeItem(storageKey);
+}
+
+export function getAuthHeaders() {
+  return token.value ? { Authorization: `Bearer ${token.value}` } : {};
 }
 
 export const cartCount = computed(() =>
