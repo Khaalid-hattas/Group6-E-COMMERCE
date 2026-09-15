@@ -1,5 +1,7 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
+import { getCreators } from "./api";
+import { resolveImageUrl } from "./imageAssets";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
@@ -11,544 +13,96 @@ import {
 } from "./cartStore";
 
 const activeFilter = ref("ALL");
+const creatorSearch = ref("");
 const selectedCreator = ref(null);
 const requestCreator = ref(null);
 const submitted = ref(false);
 const bagOpen = ref(false);
 
-const creators = [
-  {
-    name: "Amahle Ndlovu",
-    role: "Ceramicist",
-    location: "JOHANNESBURG, ZA",
-    image:
-      "https://images.unsplash.com/photo-1610701596007-11502861dcfa?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=85",
-    featured: true,
-    accepting: true,
-    years: 14,
-    pieces: 1840,
-    rating: "4.9",
-    reviews: 286,
-    tags: ["KITCHENWARE", "ORNAMENTS", "SCULPTURAL VESSELS"],
-    bio: "Amahle learned to throw on a salvaged wheel in her grandmother's kitchen in Johannesburg. Fourteen years later her practice blends traditional forms with a quiet, modern sensibility.",
-    lead: "3–5 weeks",
-    from: "£85",
-  },
-  {
-    name: "Thabo Mokoena",
-    role: "Ceramic Artist",
-    location: "CAPE TOWN, ZA",
-    image:
-      "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=85",
-    featured: true,
-    accepting: true,
-    years: 11,
-    pieces: 960,
-    rating: "4.8",
-    reviews: 167,
-    tags: ["ASH-GLAZE CERAMICS", "TEA WARE", "ORNAMENTAL TOTEMS"],
-    bio: "Thabo is the third generation of the Mokoena family to practice ash-glaze ceramics in Cape Town. His work is rooted in patience, balance, and the beauty of everyday rituals.",
-    lead: "4–6 weeks",
-    from: "£95",
-  },
-  {
-    name: "Lerato Dlamini",
-    role: "Fibre Artist",
-    location: "DURBAN, ZA",
-    image:
-      "https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=160&q=85",
-    featured: true,
-    accepting: true,
-    years: 7,
-    pieces: 620,
-    rating: "4.8",
-    reviews: 204,
-    tags: ["MACRAMÉ", "WOVEN ORNAMENTS", "PLANT HANGERS"],
-    bio: "Lerato came to macramé through a zero-waste fashion background. Every material she uses is either reclaimed, post-industrial offcut, or naturally dyed. She has developed her own knotting language — patterns she's never published — which gives her work an instantly recognisable texture.",
-    lead: "4–5 weeks",
-    from: "£65",
-  },
-  {
-    name: "Sipho Khumalo",
-    role: "Woodworker",
-    location: "PRETORIA, ZA",
-    image:
-      "https://images.unsplash.com/photo-1610701596061-2ecf227e85b2?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=160&q=85",
-    featured: false,
-    accepting: true,
-    years: 9,
-    pieces: 430,
-    rating: "4.9",
-    reviews: 91,
-    tags: ["KITCHENWARE", "CUTTING BOARDS", "SERVING VESSELS"],
-    bio: "Sipho sources every plank himself from certified sustainable forests across South Africa. He refuses shortcuts, allowing the grain and character of each piece to lead the design.",
-    lead: "3–4 weeks",
-    from: "£70",
-  },
-  {
-    name: "Naledi van der Merwe",
-    role: "Silversmith",
-    location: "GQEBERHA, ZA",
-    image:
-      "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=160&q=85",
-    featured: true,
-    accepting: true,
-    years: 8,
-    pieces: 1100,
-    rating: "4.9",
-    reviews: 175,
-    tags: ["SILVER JEWELLERY", "GOLD VERMEIL", "BESPOKE COMMISSIONS"],
-    bio: "Naledi trained in Johannesburg before spending two years studying hallmarking and alloy work. Her jewellery combines precise metalwork with the spirit of South Africa.",
-    lead: "2–4 weeks",
-    from: "£90",
-  },
-  {
-    name: "Zanele Mthembu",
-    role: "Jeweller",
-    location: "STELLENBOSCH, ZA",
-    image:
-      "https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=1000&q=85",
-    avatar:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=160&q=85",
-    featured: false,
-    accepting: true,
-    years: 10,
-    pieces: 780,
-    rating: "4.8",
-    reviews: 139,
-    tags: ["RINGS", "EARRINGS", "RAW STONE SETTINGS"],
-    bio: "Zanele's work is defined by restraint. A silversmith for ten years, she has reduced her vocabulary to a handful of forms that let each stone speak.",
-    lead: "3–6 weeks",
-    from: "£75",
-  },
-  {
-    name: "Andile Dyalvane",
-    role: "Ceramic Artist",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: true,
-    accepting: true,
-    years: 16,
-    pieces: 740,
-    rating: "4.9",
-    reviews: 128,
-    tags: ["HANDBUILT CERAMICS", "TABLEWARE", "SCULPTURAL FORMS"],
-    bio: "Andile's practice explores contemporary African stories through handbuilt clay, expressive surface marks, and forms made for both display and everyday use.",
-    lead: "5–8 weeks",
-    from: "R 1 800",
-  },
-  {
-    name: "Zizipho Poswa",
-    role: "Ceramic Sculptor",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: true,
-    accepting: true,
-    years: 12,
-    pieces: 410,
-    rating: "4.9",
-    reviews: 104,
-    tags: ["CERAMIC SCULPTURE", "FIGURATIVE FORMS", "HAND-FINISHED PIECES"],
-    bio: "Zizipho creates bold ceramic forms that connect personal memory, community, and African visual language through handbuilt sculpture.",
-    lead: "6–10 weeks",
-    from: "R 2 400",
-  },
-  {
-    name: "Beauty Ngxongo",
-    role: "Basket Weaver",
-    location: "KWAZULU-NATAL, ZA",
-    image: "",
-    avatar: "",
-    featured: true,
-    accepting: true,
-    years: 28,
-    pieces: 980,
-    rating: "4.9",
-    reviews: 176,
-    tags: ["BASKETRY", "HANDWOVEN FIBRES", "TRADITIONAL FORMS"],
-    bio: "Beauty works with traditional basketry techniques, shaping natural fibres into vessels that carry pattern, memory, and the rhythm of handwork.",
-    lead: "4–7 weeks",
-    from: "R 950",
-  },
-  {
-    name: "Dylan Evans",
-    role: "Jewellery Maker",
-    location: "STELLENBOSCH, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 24,
-    pieces: 1260,
-    rating: "4.8",
-    reviews: 149,
-    tags: ["HANDMADE JEWELLERY", "GOLD & SILVER", "BESPOKE PIECES"],
-    bio: "Dylan designs and makes jewellery in Stellenbosch, balancing clean forms with natural stones and careful hand-finishing.",
-    lead: "3–6 weeks",
-    from: "R 1 200",
-  },
-  {
-    name: "Nandi Mokoena",
-    role: "Beadwork Artist",
-    location: "JOHANNESBURG, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 9,
-    pieces: 680,
-    rating: "4.8",
-    reviews: 92,
-    tags: ["BEADWORK", "STATEMENT NECKLACES", "COLOUR STUDIES"],
-    bio: "Nandi builds bright, bead-by-bead jewellery inspired by Johannesburg street colour, family textiles, and the energy of the city.",
-    lead: "2–4 weeks",
-    from: "R 399",
-  },
-  {
-    name: "Thandiwe Khumalo",
-    role: "Textile Jewellery Artist",
-    location: "SOWETO, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 8,
-    pieces: 520,
-    rating: "4.7",
-    reviews: 71,
-    tags: ["TEXTILE JEWELLERY", "FABRIC WORK", "RECYCLED MATERIALS"],
-    bio: "Thandiwe turns reclaimed fabric, thread, and beads into soft sculptural jewellery designed to be layered and worn every day.",
-    lead: "3–5 weeks",
-    from: "R 480",
-  },
-  {
-    name: "Sipho Mthembu",
-    role: "Woodworker",
-    location: "DURBAN, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 11,
-    pieces: 740,
-    rating: "4.8",
-    reviews: 84,
-    tags: ["CARVED WOOD", "DRINKWARE", "HOMEWARE"],
-    bio: "Sipho shapes locally sourced wood into warm, tactile homeware, leaving the grain visible and the marks of the hand part of every piece.",
-    lead: "3–5 weeks",
-    from: "R 650",
-  },
-  {
-    name: "Zinhle Maseko",
-    role: "Beadwork Artist",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 7,
-    pieces: 430,
-    rating: "4.8",
-    reviews: 63,
-    tags: ["BEADED EARRINGS", "GLASS BEADS", "SMALL-BATCH JEWELLERY"],
-    bio: "Zinhle creates lightweight beaded earrings and accessories in small batches, pairing strong colour with careful, repeatable pattern.",
-    lead: "2–4 weeks",
-    from: "R 260",
-  },
-  {
-    name: "Naledi Ndlovu",
-    role: "Ceramicist",
-    location: "MABOPANE, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 10,
-    pieces: 590,
-    rating: "4.8",
-    reviews: 77,
-    tags: ["TERRACOTTA", "WHEEL-THROWN VESSELS", "NATURAL GLAZES"],
-    bio: "Naledi makes quietly shaped terracotta vessels on the wheel, using natural glazes to highlight the warmth and texture of the clay.",
-    lead: "4–6 weeks",
-    from: "R 720",
-  },
-  {
-    name: "Ayanda Maseko",
-    role: "Fibre Artist",
-    location: "GQEBERHA, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 6,
-    pieces: 360,
-    rating: "4.7",
-    reviews: 48,
-    tags: ["JUTE WEAVING", "FIBRE VESSELS", "SUSTAINABLE HOMEWARE"],
-    bio: "Ayanda coils and weaves natural jute into sculptural vessels that bring texture and a slower rhythm to the home.",
-    lead: "3–5 weeks",
-    from: "R 580",
-  },
-  {
-    name: "Lethabo Dlamini",
-    role: "Woodcarver",
-    location: "PRETORIA, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 13,
-    pieces: 470,
-    rating: "4.8",
-    reviews: 69,
-    tags: ["WOODCARVING", "SCULPTURAL OBJECTS", "HAND-FINISHED WORK"],
-    bio: "Lethabo carves expressive sculptural objects with a focus on balance, character, and the natural movement of the wood grain.",
-    lead: "5–8 weeks",
-    from: "R 1 100",
-  },
-  {
-    name: "Bontle Radebe",
-    role: "Botanical Artist",
-    location: "BLOEMFONTEIN, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 5,
-    pieces: 310,
-    rating: "4.7",
-    reviews: 41,
-    tags: ["PRESSED BOTANICALS", "WALL ART", "NATURAL MATERIALS"],
-    bio: "Bontle arranges and presses locally gathered botanicals into calm, detailed compositions on archival paper.",
-    lead: "2–4 weeks",
-    from: "R 420",
-  },
-  {
-    name: "Nesta Nala",
-    role: "Ceramic Artist",
-    location: "KWAZULU-NATAL, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 30,
-    pieces: 860,
-    rating: "4.9",
-    reviews: 143,
-    tags: ["CERAMIC VESSELS", "BURNT CLAY", "TRADITIONAL FORMS"],
-    bio: "Nesta is known for deeply rooted ceramic vessels shaped through handbuilding, burnishing, and a strong connection to Zulu pottery traditions.",
-    lead: "6–10 weeks",
-    from: "R 2 000",
-  },
-  {
-    name: "Design Afrika Weavers",
-    role: "Basketry Collective",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 20,
-    pieces: 2100,
-    rating: "4.8",
-    reviews: 188,
-    tags: ["BASKET WEAVING", "INDIGENOUS FIBRES", "HOMEWARE"],
-    bio: "Design Afrika works with weaving communities to bring finely crafted baskets and functional fibre objects into contemporary homes.",
-    lead: "4–8 weeks",
-    from: "R 850",
-  },
-  {
-    name: "Carrol Boyes Studio",
-    role: "Sculptural Designer",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: false,
-    years: 30,
-    pieces: 3200,
-    rating: "4.8",
-    reviews: 241,
-    tags: ["SCULPTURAL DESIGN", "HOMEWARE", "HAND-FINISHED OBJECTS"],
-    bio: "The studio is recognised for expressive sculptural forms that turn practical homeware into objects with presence and personality.",
-    lead: "Currently closed",
-    from: "R 1 500",
-  },
-  {
-    name: "Umtha Craftswomen",
-    role: "Beaded Craft Collective",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: true,
-    accepting: true,
-    years: 20,
-    pieces: 4500,
-    rating: "4.9",
-    reviews: 329,
-    tags: ["BEADED JEWELLERY", "AFRICAN-INSPIRED CRAFT", "SMALL BATCHES"],
-    bio: "Umtha brings together skilled Cape Town craftswomen who weave colourful, African-inspired jewellery and accessories by hand.",
-    lead: "2–5 weeks",
-    from: "R 280",
-  },
-  {
-    name: "Imbali Woodcraft Collective",
-    role: "Woodworkers",
-    location: "MPUMALANGA, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 12,
-    pieces: 1120,
-    rating: "4.7",
-    reviews: 96,
-    tags: ["CARVED WOOD", "DRINKWARE", "SUSTAINABLE MATERIALS"],
-    bio: "Imbali makes tactile wooden homeware with a focus on useful forms, smooth hand-finishing, and respect for the character of each piece of timber.",
-    lead: "3–6 weeks",
-    from: "R 650",
-  },
-  {
-    name: "Rialheim Studio",
-    role: "Ceramic Studio",
-    location: "ROBERTSON, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 15,
-    pieces: 2800,
-    rating: "4.8",
-    reviews: 215,
-    tags: ["AFRICAN CLAY", "CERAMIC HOMEWARE", "PLANTERS"],
-    bio: "Rialheim designs and manufactures handmade ceramic objects inspired by African clay, local landscapes, and useful everyday rituals.",
-    lead: "4–7 weeks",
-    from: "R 520",
-  },
-  {
-    name: "Ditiro Mashigo",
-    role: "Textile Artist",
-    location: "JOHANNESBURG, ZA",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: true,
-    years: 12,
-    pieces: 690,
-    rating: "4.8",
-    reviews: 88,
-    tags: ["TEXTILE DESIGN", "FIBRE ART", "SUSTAINABLE CRAFT"],
-    bio: "Ditiro's textile practice combines high-craft design with fibre, pattern, and sustainable ideas rooted in Sepedi heritage and the natural environment.",
-    lead: "5–8 weeks",
-    from: "R 900",
-  },
-  {
-    name: "Luvo Khwela",
-    role: "Painter",
-    location: "CAPE TOWN, ZA",
-    image: "",
-    avatar: "",
-    featured: true,
-    accepting: true,
-    years: 12,
-    pieces: 290,
-    rating: "5.0",
-    reviews: 66,
-    tags: ["ABSTRACT OIL", "LARGE FORMAT", "COMMISSIONED INTERIORS"],
-    bio: "Luvo Khwela creates the paintings and artwork featured across Artisan Hub, using expressive colour, texture, and layered marks to give every space a distinct feeling.",
-    lead: "6–8 weeks",
-    from: "£240",
-  },
-  {
-    name: "",
-    role: "Ceramicist & Candle Maker",
-    location: "",
-    image: "",
-    avatar: "",
-    featured: false,
-    accepting: false,
-    years: 6,
-    pieces: 2200,
-    rating: "4.7",
-    reviews: 318,
-    tags: ["DINNERWARE", "CANDLES", "SUSTAINABLE HOMEWARE"],
-    bio: "Lena runs two parallel practices from her Berlin studio: slip-cast ceramic tableware and soy candles poured into hand-finished vessels.",
-    lead: "Currently closed",
-    from: "£55",
-  },
-];
+const creators = ref([]);
+const isLoading = ref(true);
+const loadError = ref(false);
 
-const productMakers = new Set([
-  "Nesta Nala",
-  "Zizipho Poswa",
-  "Beauty Ngxongo",
-  "Design Afrika Weavers",
-  "Carrol Boyes Studio",
-  "Umtha Craftswomen",
-  "Imbali Woodcraft Collective",
-  "Rialheim Studio",
-  "Ditiro Mashigo",
-  "Luvo Khwela",
-  "Nandi Mokoena",
-  "Thandiwe Khumalo",
-  "Sipho Mthembu",
-  "Zinhle Maseko",
-  "Naledi Ndlovu",
-  "Ayanda Maseko",
-  "Lethabo Dlamini",
-  "Bontle Radebe",
-]);
-
-const artworkByCreator = {
-  "Luvo Khwela": new URL("../images/Artwork/abstractimages.jpeg", import.meta.url).href,
-  "Nesta Nala": new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
-  "Beauty Ngxongo": new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
-  "Design Afrika Weavers": new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
-  "Carrol Boyes Studio": new URL("../images/Handcrafted/Essential-holder.jpg", import.meta.url).href,
-  "Umtha Craftswomen": new URL("../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
-  "Zizipho Poswa": new URL("../images/Handmade/sculptures.jpg", import.meta.url).href,
-  "Imbali Woodcraft Collective": new URL("../images/Handcrafted/kitchenset.jpg", import.meta.url).href,
-  "Rialheim Studio": new URL("../images/Handcrafted/potplants.jpg", import.meta.url).href,
-  "Ditiro Mashigo": new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
-  "Nandi Mokoena": new URL("../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
-  "Thandiwe Khumalo": new URL("../images/Handmade/handmadefabric-necklace.jpg", import.meta.url).href,
-  "Sipho Mthembu": new URL("../images/Handmade/wooden-cup.jpg", import.meta.url).href,
-  "Zinhle Maseko": new URL("../images/Handmade/earrings.jpg", import.meta.url).href,
-  "Naledi Ndlovu": new URL("../images/Handmade/vase.jpg", import.meta.url).href,
-  "Ayanda Maseko": new URL("../images/Handmade/juterope-wovenvase.jpg", import.meta.url).href,
-  "Lethabo Dlamini": new URL("../images/Handmade/sculptures.jpg", import.meta.url).href,
-  "Bontle Radebe": new URL("../images/Handmade/botanical-wall-art.webp", import.meta.url).href,
+const creatorImagePaths = {
+  "Zizipho Poswa": "/images/Handcrafted/kitchenset.jpg",
+  "Beauty Ngxongo": "/images/Handcrafted/basket.jpg",
+  "Design Afrika Weavers": "/images/Handcrafted/costerset.jpg",
+  "Carrol Boyes Studio": "/images/Handcrafted/Essential-holder.jpg",
+  "Umtha Craftswomen": "/images/Handmade/beadwork-necklace.jpg",
+  "Imbali Woodcraft Collective": "/images/Handcrafted/mugset.jpg",
+  "Rialheim Studio": "/images/Handcrafted/potplants.jpg",
+  "Ditiro Mashigo": "/images/Handcrafted/purse.jpg",
+  "Nandi Mokoena": "/images/Handmade/beadwork-necklace.jpg",
+  "Thandiwe Khumalo": "/images/Handmade/handmadefabric-necklace.jpg",
+  "Sipho Mthembu": "/images/Handmade/wooden-cup.jpg",
+  "Zinhle Maseko": "/images/Handmade/earrings.jpg",
+  "Naledi Ndlovu": "/images/Handmade/vase.jpg",
+  "Ayanda Maseko": "/images/Handmade/juterope-wovenvase.jpg",
+  "Lethabo Dlamini": "/images/Handmade/sculptures.jpg",
+  "Bontle Radebe": "/images/Handmade/botanical-wall-art.webp",
+  "Nesta Nala": "/images/Handcrafted/antique-set.jpg",
+  "Luvo Khwela": "/images/Artwork/abstractimages.jpeg",
 };
 
-const eligibleCreators = creators.filter(
-  (creator) =>
-    creator.name &&
-    creator.location.endsWith(", ZA") &&
-    productMakers.has(creator.name),
-).map((creator) => ({
-  ...creator,
-  artworkImage: artworkByCreator[creator.name],
-}));
-
 const filteredCreators = computed(() => {
+  const searchTerm = creatorSearch.value.trim().toLowerCase();
+  const matchingCreators = creators.value.filter((creator) => {
+    if (!searchTerm) return true;
+
+    return [
+      creator.name,
+      creator.role,
+      creator.location,
+      ...(creator.tags || []),
+    ].some((value) => String(value || "").toLowerCase().includes(searchTerm));
+  });
+
   if (activeFilter.value === "FEATURED")
-    return eligibleCreators.filter((creator) => creator.featured);
+    return matchingCreators.filter((creator) => creator.featured);
   if (activeFilter.value === "OPEN")
-    return eligibleCreators.filter((creator) => creator.accepting);
-  return eligibleCreators;
+    return matchingCreators.filter((creator) => creator.accepting);
+  return matchingCreators;
 });
+
+async function loadCreators() {
+  isLoading.value = true;
+  loadError.value = false;
+  try {
+    const items = await getCreators();
+    creators.value = items.map((creator) => ({
+      name: creator.full_name,
+      role: creator.role || "Creator",
+      location: creator.location || "SOUTH AFRICA",
+      image: resolveImageUrl(
+        creator.image_url || creator.avatar_url || creatorImagePaths[creator.full_name],
+      ),
+      avatar: resolveImageUrl(
+        creator.avatar_url || creator.image_url || creatorImagePaths[creator.full_name],
+      ),
+      featured: Boolean(creator.featured),
+      accepting: creator.accepting !== false,
+      years: creator.years ?? 0,
+      pieces: creator.pieces ?? 0,
+      rating: creator.rating ?? "-",
+      reviews: creator.reviews ?? 0,
+      tags: creator.tags?.length
+        ? creator.tags
+        : creator.studio_name
+          ? [creator.studio_name]
+          : [],
+      bio: creator.bio || "",
+      lead: creator.lead || "Contact creator",
+      from: creator.from || "Request a quote",
+    }));
+  } catch (error) {
+    console.error(error);
+    loadError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(loadCreators);
 
 function openRequest(creator) {
   requestCreator.value = creator;
@@ -597,13 +151,15 @@ function submitRequest() {
       <a class="logo" href="/">
         <img class="brand-logo" :src="logo" alt="Artisan Hub" />
       </a>
-      <label class="search-box"
-        ><span class="sr-only">Search creators</span
-        ><input
+      <label class="search-box">
+        <span class="sr-only">Search creators</span>
+        <input
+          v-model="creatorSearch"
           type="search"
-          placeholder="Search handcrafts, artwork..."
-        /><span class="search-icon">⌕</span></label
-      >
+          placeholder="Search creators..."
+        />
+        <span class="search-icon">⌕</span>
+      </label>
       <nav class="main-nav" aria-label="Main navigation">
         <a href="/handcraft">Handcrafted</a>
         <a href="/handmade">Handmade</a>
@@ -728,16 +284,21 @@ function submitRequest() {
             </button>
           </div>
         </div>
-        <div class="creator-grid">
+        <p v-if="isLoading" class="loading-state">Loading creators...</p>
+        <div v-else-if="loadError" class="error-state">
+          <p>Couldn't load creators right now. Please try again later.</p>
+          <button type="button" @click="loadCreators">Retry</button>
+        </div>
+        <div v-else-if="filteredCreators.length" class="creator-grid">
           <article
             v-for="creator in filteredCreators"
               :key="creator.name || creator.role"
             class="creator-card"
           >
             <img
-              v-if="creator.artworkImage || creator.image"
+              v-if="creator.image"
               class="creator-image"
-              :src="creator.artworkImage || creator.image"
+              :src="creator.image"
               :alt="`${creator.name} artwork`"
             />
             <div v-else class="creator-image image-placeholder">
@@ -753,8 +314,9 @@ function submitRequest() {
                 />
                 <div v-else class="creator-avatar avatar-placeholder">
                   {{
-                    creator.name
+                    (creator.name || "")
                       .split(" ")
+                      .filter(Boolean)
                       .map((name) => name[0])
                       .join("")
                   }}
@@ -804,6 +366,7 @@ function submitRequest() {
             </div>
           </article>
         </div>
+        <p v-else class="empty-state">No creators found for this filter.</p>
       </section>
 
       <section class="match-section">
@@ -848,7 +411,7 @@ function submitRequest() {
           <label
             >PREFERRED CREATOR (OPTIONAL)<select>
               <option>No preference — match me</option>
-              <option v-for="creator in eligibleCreators" :key="creator.name">
+              <option v-for="creator in creators" :key="creator.name">
                 {{ creator.name }} — {{ creator.role }}
               </option>
             </select></label
@@ -905,7 +468,7 @@ function submitRequest() {
         >
           ×</button
         ><div
-          v-if="!selectedCreator.artworkImage && !selectedCreator.image"
+          v-if="!selectedCreator.image"
           class="profile-cover image-placeholder"
         >
           ADD CREATOR IMAGE
@@ -913,7 +476,7 @@ function submitRequest() {
         <img
           v-else
           class="profile-cover"
-          :src="selectedCreator.artworkImage || selectedCreator.image"
+          :src="selectedCreator.image"
           :alt="`${selectedCreator.name} artwork`"
         />
         <div class="profile-body">
@@ -926,8 +489,9 @@ function submitRequest() {
             />
             <div v-else class="profile-avatar avatar-placeholder">
               {{
-                selectedCreator.name
+                (selectedCreator.name || "")
                   .split(" ")
+                  .filter(Boolean)
                   .map((name) => name[0])
                   .join("")
               }}
@@ -941,14 +505,7 @@ function submitRequest() {
                 >
               </h2>
               <p class="role">{{ selectedCreator.role }}</p>
-              <p class="location">
-                {{ selectedCreator.location }} ·
-                {{
-                  selectedCreator.location.split(", ")[1] === "ES"
-                    ? "SPAIN"
-                    : selectedCreator.location.split(", ")[1]
-                }}
-              </p>
+              <p class="location">{{ selectedCreator.location }}</p>
               <p class="rating">
                 ★★★★<span>★</span> &nbsp; {{ selectedCreator.rating }} ·
                 {{ selectedCreator.reviews }} reviews
@@ -1867,6 +1424,21 @@ function submitRequest() {
   margin: 24px 0 0;
   color: var(--muted);
   text-align: center;
+}
+.loading-state,
+.error-state,
+.empty-state {
+  padding: 60px 3.2%;
+  text-align: center;
+  color: var(--muted);
+}
+.error-state button {
+  margin-top: 14px;
+  padding: 10px 18px;
+  border: 1px solid var(--rust);
+  color: var(--rust);
+  background: transparent;
+  cursor: pointer;
 }
 @media (max-width: 1100px) {
   .main-nav {

@@ -1225,6 +1225,21 @@ WHERE name IN (
     'Burden Study'
 );
 
+UPDATE artwork SET image_url = CASE name
+    WHEN 'Flux Study No. 4' THEN '/images/Artwork/abstractimages.jpeg'
+    WHEN 'Terrain I' THEN '/images/Artwork/aspire.jpeg'
+    WHEN 'Solvent & Grace' THEN '/images/Artwork/banana.jpeg'
+    WHEN 'Primary Field II' THEN '/images/Artwork/birthmom.jpeg'
+    WHEN 'Form Without Function' THEN '/images/Artwork/construction.jpeg'
+    WHEN 'Still Interior' THEN '/images/Artwork/empowering.jpeg'
+    WHEN 'Botanical Series III' THEN '/images/Artwork/gogo.jpeg'
+    WHEN 'Burden Study' THEN '/images/Artwork/women.jpeg'
+END
+WHERE name IN (
+    'Flux Study No. 4', 'Terrain I', 'Solvent & Grace', 'Primary Field II',
+    'Form Without Function', 'Still Interior', 'Botanical Series III', 'Burden Study'
+);
+
 USE artisanhub;
 
 -- 1. Hand-turned African Vessel Set
@@ -1578,3 +1593,61 @@ SELECT
 FROM creators c
 JOIN categories cat ON cat.name = 'Home & Decor'
 WHERE c.studio_name = 'Bontle Radebe';
+
+UPDATE creators SET avatar_url = CASE studio_name
+    WHEN 'Zizipho Poswa' THEN '/images/Handcrafted/kitchenset.jpg'
+    WHEN 'Beauty Ngxongo' THEN '/images/Handcrafted/basket.jpg'
+    WHEN 'Design Afrika Weavers' THEN '/images/Handcrafted/costerset.jpg'
+    WHEN 'Carrol Boyes Studio' THEN '/images/Handcrafted/Essential-holder.jpg'
+    WHEN 'Umtha Craftswomen' THEN '/images/Handmade/beadwork-necklace.jpg'
+    WHEN 'Imbali Woodcraft Collective' THEN '/images/Handcrafted/mugset.jpg'
+    WHEN 'Rialheim Studio' THEN '/images/Handcrafted/potplants.jpg'
+    WHEN 'Ditiro Mashigo' THEN '/images/Handcrafted/purse.jpg'
+    WHEN 'Nandi Mokoena' THEN '/images/Handmade/beadwork-necklace.jpg'
+    WHEN 'Thandiwe Khumalo' THEN '/images/Handmade/handmadefabric-necklace.jpg'
+    WHEN 'Sipho Mthembu' THEN '/images/Handmade/wooden-cup.jpg'
+    WHEN 'Zinhle Maseko' THEN '/images/Handmade/earrings.jpg'
+    WHEN 'Naledi Ndlovu' THEN '/images/Handmade/vase.jpg'
+    WHEN 'Ayanda Maseko' THEN '/images/Handmade/juterope-wovenvase.jpg'
+    WHEN 'Lethabo Dlamini' THEN '/images/Handmade/sculptures.jpg'
+    WHEN 'Bontle Radebe' THEN '/images/Handmade/botanical-wall-art.webp'
+    WHEN 'Nesta Nala' THEN '/images/Handcrafted/antique-set.jpg'
+    WHEN 'Luvo Khwela' THEN '/images/Artwork/abstractimages.jpeg'
+END;
+
+UPDATE handcraft SET image_url = CASE name
+    WHEN 'Hand-turned African Vessel Set' THEN '/images/Handcrafted/antique-set.jpg'
+    WHEN 'Handwoven Basket Set' THEN '/images/Handcrafted/basket.jpg'
+    WHEN 'Wood & Woven Coaster Set' THEN '/images/Handcrafted/costerset.jpg'
+    WHEN 'Handcrafted Wooden Desk Organiser' THEN '/images/Handcrafted/Essential-holder.jpg'
+    WHEN 'African Market Tableware Collection' THEN '/images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg'
+    WHEN 'Colourful Storyteller Serving Dish' THEN '/images/Handcrafted/handcrafted-dish.webp'
+    WHEN 'Carved Wooden Tumbler Set' THEN '/images/Handcrafted/mugset.jpg'
+    WHEN 'Heart-shaped Succulent Planters' THEN '/images/Handcrafted/potplants.jpg'
+    WHEN 'Leather & Wax-print Pouch' THEN '/images/Handcrafted/purse.jpg'
+    WHEN 'South African Beaded Mug' THEN '/images/Handcrafted/SA-rank.jpg'
+    WHEN 'Beaded Market Craft Display' THEN '/images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg'
+END
+WHERE name IN (
+    'Hand-turned African Vessel Set', 'Handwoven Basket Set', 'Wood & Woven Coaster Set',
+    'Handcrafted Wooden Desk Organiser', 'African Market Tableware Collection',
+    'Colourful Storyteller Serving Dish', 'Carved Wooden Tumbler Set',
+    'Heart-shaped Succulent Planters', 'Leather & Wax-print Pouch',
+    'South African Beaded Mug', 'Beaded Market Craft Display'
+);
+
+UPDATE handmade SET image_url = CASE name
+    WHEN 'Beaded Heritage Necklace' THEN '/images/Handmade/beadwork-necklace.jpg'
+    WHEN 'Woven Fabric Statement Necklace' THEN '/images/Handmade/handmadefabric-necklace.jpg'
+    WHEN 'Carved Wooden Cup' THEN '/images/Handmade/wooden-cup.jpg'
+    WHEN 'Beaded Drop Earrings' THEN '/images/Handmade/earrings.jpg'
+    WHEN 'Hand-thrown Terracotta Vase' THEN '/images/Handmade/vase.jpg'
+    WHEN 'Jute Rope Woven Vase' THEN '/images/Handmade/juterope-wovenvase.jpg'
+    WHEN 'Hand-carved Story Sculpture' THEN '/images/Handmade/sculptures.jpg'
+    WHEN 'Botanical Pressed Wall Art' THEN '/images/Handmade/botanical-wall-art.webp'
+END
+WHERE name IN (
+    'Beaded Heritage Necklace', 'Woven Fabric Statement Necklace', 'Carved Wooden Cup',
+    'Beaded Drop Earrings', 'Hand-thrown Terracotta Vase', 'Jute Rope Woven Vase',
+    'Hand-carved Story Sculpture', 'Botanical Pressed Wall Art'
+);
