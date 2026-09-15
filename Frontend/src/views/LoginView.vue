@@ -89,8 +89,14 @@ const route = useRoute();
 const router = useRouter();
 
 function handleLogin() {
+  const user = {
+    email: form.email,
+    role: role.value,
+    fullName: form.email.split("@")[0],
+  };
+
   console.log("Login payload:", { role: role.value, ...form });
-  signIn();
+  signIn(null, user);
   addPendingCartItem();
   router.push(route.query.redirect || "/");
 }

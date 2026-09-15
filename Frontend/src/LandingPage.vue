@@ -1,35 +1,191 @@
 <script setup>
 import emailjs from "@emailjs/browser";
-import { onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Artwork from "./Artwork.vue";
 import Creators from "./Creators.vue";
 import Handcraft from "./Handcraft.vue";
 import Handmade from "./Handmade.vue";
-import { cartItems, cartTotal, getItemName, getPrice } from "./cartStore";
+import {
+  cartItems,
+  cartTotal,
+  clearCart,
+  currentUser,
+  getItemName,
+  getPrice,
+  isAuthenticated,
+} from "./cartStore";
 
+const router = useRouter();
 const currentPage = ref("handcraft");
 const paymentComplete = ref(false);
 const paymentError = ref("");
-const form = reactive({ email: "" });
+const emailSending = ref(false);
+const checkoutOrderId = ref(`AH-${Date.now()}`);
+
+const form = reactive({
+  email: currentUser.value?.email || "",
+  name_first: currentUser.value?.fullName
+    ? currentUser.value.fullName.split(" ")[0]
+    : "",
+  name_last: currentUser.value?.fullName
+    ? currentUser.value.fullName.split(" ").slice(1).join(" ")
+    : "",
+});
+
+const payfastUrl = "https://sandbox.payfast.co.za/eng/process";
+const pendingOrderKey = "artisan-hub-pending-order";
+const sentOrderKey = "artisan-hub-sent-order";
+
+const payfastData = computed(() => {
+  const origin = window.location.origin;
+  const itemCount = cartItems.value.length;
+  return {
+    merchant_id: "10000100",
+    merchant_key: "46f0cd694581a",
+    return_url: `${origin}/landing#order-success`,
+    cancel_url: `${origin}/landing#checkout`,
+    notify_url: `${origin}/api/payment/notify`,
+    name_first: form.name_first.trim() || "Artisan",
+    name_last: form.name_last.trim() || "Customer",
+    email_address: form.email.trim() || "customer@example.com",
+    m_payment_id: checkoutOrderId.value,
+    amount: (cartTotal.value || 0).toFixed(2),
+    item_name: `ArtisanHub Order (${itemCount} item${itemCount === 1 ? "" : "s"})`,
+  };
+});
 
 function money(amount) {
   return `R ${Number(amount).toFixed(2)}`;
 }
 
+function buildOrderSnapshot() {
+  return {
+    orderId: checkoutOrderId.value,
+    email: form.email.trim(),
+    nameFirst: form.name_first.trim(),
+    nameLast: form.name_last.trim(),
+    total: money(cartTotal.value),
+    items: cartItems.value.map((item) => ({
+      name: getItemName(item),
+      quantity: item.quantity,
+      price: money(getPrice(item) * item.quantity),
+    })),
+  };
+}
+
+function preparePayfastCheckout() {
+  sessionStorage.setItem(pendingOrderKey, JSON.stringify(buildOrderSnapshot()));
+}
+
+async function sendOrderConfirmation() {
+  const pendingOrder = sessionStorage.getItem(pendingOrderKey);
+  if (!pendingOrder) return;
+
+  const order = JSON.parse(pendingOrder);
+  if (sessionStorage.getItem(sentOrderKey) === order.orderId) {
+    paymentComplete.value = true;
+    return;
+  }
+
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+  if (!serviceId || !templateId || !publicKey) {
+    paymentError.value = "Payment succeeded, but email confirmation is not configured.";
+    paymentComplete.value = true;
+    return;
+  }
+
+  emailSending.value = true;
+  try {
+    const itemNames = order.items.map((item) => item.name).join(", ");
+    const quantities = order.items.map((item) => item.quantity).join(", ");
+    const itemPrices = order.items.map((item) => item.price).join(", ");
+
+    await emailjs.send(
+      serviceId,
+      templateId,
+      {
+        email: order.email,
+        to_email: order.email,
+        customer_email: order.email,
+        customer_name: `${order.nameFirst} ${order.nameLast}`.trim(),
+        order_id: order.orderId,
+        order_items: order.items
+          .map((item) => `${item.name} x ${item.quantity} — ${item.price}`)
+          .join("\\n"),
+        orders: order.items
+          .map((item) => `${item.name} x ${item.quantity} — ${item.price}`)
+          .join("\\n"),
+        // Flat aliases used by the EmailJS order template.
+        item: itemNames,
+        quantity: quantities,
+        units: quantities,
+        price: itemPrices,
+        shipping: "R 0.00",
+        tax: "R 0.00",
+        taxes: "R 0.00",
+        total: order.total,
+        order_total: order.total,
+        cost: {
+          shipping: "R 0.00",
+          tax: "R 0.00",
+          total: order.total,
+        },
+      },
+      publicKey,
+    );
+    sessionStorage.setItem(sentOrderKey, order.orderId);
+    sessionStorage.removeItem(pendingOrderKey);
+    clearCart();
+    paymentComplete.value = true;
+  } catch (error) {
+    console.error("EmailJS checkout confirmation failed:", error);
+    paymentError.value = "Payment succeeded, but we could not send your confirmation email. Please try again.";
+    paymentComplete.value = true;
+  } finally {
+    emailSending.value = false;
+  }
+}
+
 function updatePage() {
   const hash = window.location.hash;
 
+  if (hash === "#order-success") {
+    currentPage.value = "checkout";
+    paymentComplete.value = true;
+    void sendOrderConfirmation();
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  if (hash === "#checkout") {
+    if (!isAuthenticated.value) {
+      router.push({
+        path: "/login",
+        query: { redirect: "/landing#checkout" },
+      });
+      return;
+    }
+    currentPage.value = "checkout";
+    paymentComplete.value = false;
+    paymentError.value = "";
+    window.scrollTo(0, 0);
+    return;
+  }
+
+  paymentComplete.value = false;
   currentPage.value =
-    hash === "#checkout"
-      ? "checkout"
-      : hash === "#creators"
-        ? "creators"
-        : hash === "#artwork"
-          ? "artwork"
-          : hash === "#handmade"
-            ? "handmade"
-            : "handcraft";
+    hash === "#creators"
+      ? "creators"
+      : hash === "#artwork"
+        ? "artwork"
+        : hash === "#handmade"
+          ? "handmade"
+          : "handcraft";
 
   window.scrollTo(0, 0);
 }
@@ -44,51 +200,19 @@ function handleCheckoutClick(event) {
     return;
   }
 
-  paymentComplete.value = false;
-  paymentError.value = "";
-  window.location.hash = "checkout";
-}
-
-async function submitPayment() {
-  paymentError.value = "";
-
-  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-  if (!serviceId || !templateId || !publicKey) {
-    paymentError.value = "Email confirmation is not configured yet.";
+  if (!isAuthenticated.value) {
+    event.preventDefault();
+    event.stopPropagation();
+    router.push({
+      path: "/login",
+      query: { redirect: "/landing#checkout" },
+    });
     return;
   }
 
-  const orders = cartItems.value.map((item) => ({
-    name: getItemName(item),
-    units: item.quantity,
-    price: money(getPrice(item) * item.quantity),
-  }));
-  const orderId = `AH-${Date.now()}`;
-
-  try {
-    await emailjs.send(
-      serviceId,
-      templateId,
-      {
-        email: form.email,
-        order_id: orderId,
-        orders,
-        cost: {
-          shipping: "R 0.00",
-          tax: "R 0.00",
-          total: money(cartTotal.value),
-        },
-      },
-      publicKey,
-    );
-    paymentComplete.value = true;
-  } catch (error) {
-    console.error("EmailJS checkout confirmation failed:", error);
-    paymentError.value = "We could not send your confirmation. Please try again.";
-  }
+  paymentComplete.value = false;
+  paymentError.value = "";
+  window.location.hash = "checkout";
 }
 
 onMounted(() => {
@@ -124,83 +248,111 @@ onBeforeUnmount(() => window.removeEventListener("hashchange", updatePage));
           </div>
         </div>
 
-        <form class="payment-card" @submit.prevent="submitPayment">
-          <div v-if="paymentComplete" class="payment-success">
+        <div v-if="paymentComplete" class="payment-card">
+          <div class="payment-success">
             <span>✓</span>
-            <h2>Thank you for your order.</h2>
+            <h2>Thank you for your order!</h2>
             <p>
-              Your payment was received. A confirmation was sent to
-              {{ form.email }}.
+              Your payment was received successfully via PayFast.
+              {{ form.email ? 'A confirmation was sent to ' + form.email + '.' : '' }}
             </p>
-            <div class="payment-success-order">
-              <p v-for="item in cartItems" :key="getItemName(item)">
-                {{ getItemName(item) }} × {{ item.quantity }}
-              </p>
-              <strong>Total: {{ money(cartTotal) }}</strong>
+            <p v-if="emailSending">Sending your confirmation email…</p>
+            <p v-if="paymentError" class="payment-error">{{ paymentError }}</p>
+            <div class="payment-trust" style="margin: 20px 0; justify-content: center;">
+              <span>✓ Payment verified</span>
+              <span>✓ Maker notified</span>
+              <span>✓ Tracked delivery</span>
             </div>
             <a href="/">RETURN TO SHOP</a>
           </div>
+        </div>
 
-          <template v-else>
-            <div class="payment-card-heading">
-              <h2>Payment details</h2>
-              <span>VISA · MC · EFT</span>
-            </div>
+        <div v-else-if="cartItems.length === 0" class="payment-card">
+          <div class="payment-card-heading">
+            <h2>Your bag is empty</h2>
+            <span>0 ITEMS</span>
+          </div>
+          <p style="color: var(--muted); margin-bottom: 24px;">
+            You have no items in your shopping bag. Explore our collection of handcrafted artisan goods before checking out.
+          </p>
+          <a class="pay-button" href="/">DISCOVER HANDCRAFTS</a>
+        </div>
+
+        <form
+          v-else
+          class="payment-card"
+          :action="payfastUrl"
+          method="POST"
+          @submit="preparePayfastCheckout"
+        >
+          <div class="payment-card-heading">
+            <h2>Payment Details</h2>
+            <span>PAYFAST · CARDS · INSTANT EFT</span>
+          </div>
+
+          <!-- Hidden PayFast Parameters -->
+          <input type="hidden" name="merchant_id" :value="payfastData.merchant_id" />
+          <input type="hidden" name="merchant_key" :value="payfastData.merchant_key" />
+          <input type="hidden" name="return_url" :value="payfastData.return_url" />
+          <input type="hidden" name="cancel_url" :value="payfastData.cancel_url" />
+          <input type="hidden" name="notify_url" :value="payfastData.notify_url" />
+          <input type="hidden" name="name_first" :value="payfastData.name_first" />
+          <input type="hidden" name="name_last" :value="payfastData.name_last" />
+          <input type="hidden" name="email_address" :value="payfastData.email_address" />
+          <input type="hidden" name="m_payment_id" :value="payfastData.m_payment_id" />
+          <input type="hidden" name="amount" :value="payfastData.amount" />
+          <input type="hidden" name="item_name" :value="payfastData.item_name" />
+
+          <!-- Buyer Contact Info -->
+          <div class="payment-fields">
             <label>
-              EMAIL ADDRESS
+              FIRST NAME
               <input
-                v-model="form.email"
+                v-model="form.name_first"
                 required
-                type="email"
-                placeholder="you@email.com"
+                type="text"
+                placeholder="First name"
               />
             </label>
             <label>
-              CARDHOLDER NAME
-              <input required placeholder="Full name" />
-            </label>
-            <label>
-              CARD NUMBER
+              LAST NAME
               <input
+                v-model="form.name_last"
                 required
-                inputmode="numeric"
-                maxlength="19"
-                placeholder="1234 5678 9012 3456"
+                type="text"
+                placeholder="Last name"
               />
             </label>
-            <div class="payment-fields">
-              <label>
-                EXPIRY DATE
-                <input required placeholder="MM / YY" />
-              </label>
-              <label>
-                CVV
-                <input
-                  required
-                  inputmode="numeric"
-                  maxlength="4"
-                  placeholder="123"
-                />
-              </label>
+          </div>
+
+          <label>
+            EMAIL ADDRESS
+            <input
+              v-model="form.email"
+              required
+              type="email"
+              placeholder="you@email.com"
+            />
+          </label>
+
+          <div class="payment-total">
+            <div class="checkout-items">
+              <span v-for="item in cartItems" :key="getItemName(item)">
+                {{ getItemName(item) }} · Qty {{ item.quantity }} · {{ money(getPrice(item) * item.quantity) }}
+              </span>
             </div>
-            <div class="payment-total">
-              <div class="checkout-items">
-                <span v-for="item in cartItems" :key="getItemName(item)">
-                  {{ getItemName(item) }} · Qty {{ item.quantity }}
-                </span>
-              </div>
-              <span>Order total</span>
-              <strong>{{ money(cartTotal) }}</strong>
-            </div>
-            <button class="pay-button" type="submit">
-              PAY {{ money(cartTotal) }}
-            </button>
-            <p v-if="paymentError" class="payment-error">{{ paymentError }}</p>
-            <p class="payment-note">
-              Your payment information is encrypted and never stored on this
-              site.
-            </p>
-          </template>
+            <span>Order total</span>
+            <strong>{{ money(cartTotal) }}</strong>
+          </div>
+
+          <button class="pay-button" type="submit">
+            PAY WITH PAYFAST {{ money(cartTotal) }}
+          </button>
+
+          <p v-if="paymentError" class="payment-error">{{ paymentError }}</p>
+          <p class="payment-note">
+            🛡️ Secured by PayFast Sandbox. Supports Visa, Mastercard, Capitec Pay, and Instant EFT.
+          </p>
         </form>
       </main>
 

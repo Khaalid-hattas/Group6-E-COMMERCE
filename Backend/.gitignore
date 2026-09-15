@@ -1,7 +1,5 @@
+# Installed dependencies
 node_modules/
-dist/
-dist-ssr/
-coverage/
 
 # Local environment files
 .env
@@ -15,8 +13,14 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Build, coverage, and local runtime output
+dist/
+coverage/
+*.local
+
 # OS and editor files
 .DS_Store
 Thumbs.db
 .idea/
 .vscode/
+

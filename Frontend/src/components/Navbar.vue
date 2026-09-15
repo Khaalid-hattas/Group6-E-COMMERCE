@@ -16,14 +16,23 @@
       <router-link :class="{ active: route.path === '/creators' }" to="/creators">Creators</router-link>
       <router-link :class="{ active: route.path === '/about' }" to="/about">About Us</router-link>
     </nav>
-    <button
-      class="bag-button"
-      type="button"
-      aria-label="Open shopping bag"
-      @click="cartOpen = true"
-    >
-      ♧<span v-if="cartCount" class="bag-count">{{ cartCount }}</span>
-    </button>
+    <div class="nav-right">
+      <template v-if="isAuthenticated">
+        <span class="user-chip">Hi, {{ currentUser?.fullName || currentUser?.email?.split('@')[0] || 'User' }}</span>
+        <button class="nav-auth-btn" type="button" @click="signOut">Logout</button>
+      </template>
+      <template v-else>
+        <router-link class="nav-auth-btn" to="/login">Login</router-link>
+      </template>
+      <button
+        class="bag-button"
+        type="button"
+        aria-label="Open shopping bag"
+        @click="cartOpen = true"
+      >
+        ♧<span v-if="cartCount" class="bag-count">{{ cartCount }}</span>
+      </button>
+    </div>
   </header>
   <div v-if="cartOpen" class="bag-backdrop" @click="cartOpen = false"></div>
   <aside v-if="cartOpen" class="bag-drawer" aria-label="Shopping bag">
@@ -77,6 +86,9 @@ import {
   getItemType,
   getPrice,
   removeCartItem,
+  isAuthenticated,
+  currentUser,
+  signOut,
 } from "../cartStore";
 
 const cartOpen = ref(false);
@@ -93,6 +105,10 @@ function removeItem(item) {
 
 function goToCheckout() {
   cartOpen.value = false;
+  if (!isAuthenticated.value) {
+    router.push({ path: "/login", query: { redirect: "/landing#checkout" } });
+    return;
+  }
   router.push({ name: "landing", hash: "#checkout" });
 }
 
@@ -102,6 +118,41 @@ function money(amount) {
 </script>
 
 <style scoped>
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.user-chip {
+  font-size: 13px;
+  color: #5a4b41;
+  font-weight: 500;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-auth-btn {
+  font-size: 13px;
+  font-weight: 600;
+  color: #8f3f1c;
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid #8f3f1c;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-auth-btn:hover {
+  background: #8f3f1c;
+  color: #fff;
+}
+
 .bag-backdrop {
   position: fixed;
   inset: 0;
