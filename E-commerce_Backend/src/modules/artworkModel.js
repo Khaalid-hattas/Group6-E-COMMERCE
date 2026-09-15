@@ -12,7 +12,8 @@ const getAllArtwork = async () => {
             a.price,
             a.stock_quantity,
             a.image_url,
-            a.status,
+                a.status,
+                a.style_category,
             c.user_id AS creator_id,
             c.studio_name AS creator_name,
             c.location AS creator_location
@@ -36,7 +37,8 @@ const getArtworkById = async (id) => {
             a.price,
             a.stock_quantity,
             a.image_url,
-            a.status,
+                a.status,
+                a.style_category,
             c.user_id AS creator_id,
             c.studio_name AS creator_name,
             c.location AS creator_location
@@ -76,9 +78,10 @@ const createArtwork = async (artwork) => {
             price,
             stock_quantity,
             image_url,
-            status
+            status,
+            style_category
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
         creator_id,
         category_id,
@@ -90,7 +93,8 @@ const createArtwork = async (artwork) => {
         price,
         stock_quantity,
         image_url,
-        status || 'active'
+        status || 'active',
+        artwork.style_category
     ]);
 
     return result.insertId;
@@ -122,7 +126,8 @@ const updateArtwork = async (id, artwork) => {
             price = ?,
             stock_quantity = ?,
             image_url = ?,
-            status = ?
+                status = ?,
+                style_category = ?
         WHERE id = ?
     `, [
         category_id,
@@ -135,6 +140,7 @@ const updateArtwork = async (id, artwork) => {
         stock_quantity,
         image_url,
         status,
+        artwork.style_category,
         id
     ]);
 

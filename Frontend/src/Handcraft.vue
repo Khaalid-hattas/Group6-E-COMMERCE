@@ -1,6 +1,8 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import { getHandcraft } from "./api";
+import { resolveImageUrl } from "./imageAssets";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
 import {
@@ -50,136 +52,42 @@ const makers = [
   },
 ];
 
-const products = [
-  {
-    name: "Hand-turned African Vessel Set",
-    maker: "NESTA NALA · KWAZULU-NATAL, ZA",
-    type: "KITCHENWARE",
-    material: "Hand-turned clay · 3-piece set",
-    price: 148,
-    note: "Three sculptural vessels with burnished surfaces and individual hand-finished marks.",
-    badge: "HANDCRAFTED",
-    image:
-      new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
-  },
-  {
-    name: "Handwoven Basket Set",
-    maker: "BEAUTY NGXONGO · KWAZULU-NATAL, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Indigenous fibre · 3-piece set",
-    price: 420,
-    note: "Nested baskets woven by hand for storage, serving and everyday display.",
-    badge: "NEW",
-    image:
-      new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
-  },
-  {
-    name: "Wood & Woven Coaster Set",
-    maker: "DESIGN AFRIKA WEAVERS · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Wood & woven fibre · 6-piece set",
-    price: 950,
-    note: "Warm wooden coasters finished with woven centres and a hand-built holder.",
-    badge: "SALE",
-    oldPrice: 680,
-    image:
-      new URL("../images/Handcrafted/costerset.jpg", import.meta.url).href,
-  },
-  {
-    name: "Handcrafted Wooden Desk Organiser",
-    maker: "CARROL BOYES STUDIO · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Solid wood · Phone, watch & key holder",
-    price: 1350,
-    note: "A practical entryway organiser with handmade compartments for daily essentials.",
-    badge: "KITCHENWARE",
-    image:
-      new URL("../images/Handcrafted/Essential-holder.jpg", import.meta.url).href,
-  },
-  {
-    name: "African Market Tableware Collection",
-    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Hand-painted ceramic · Mixed set",
-    price: 1200,
-    note: "A colourful collection of handmade tableware inspired by South African craft markets.",
-    badge: "POPULAR",
-    image:
-      new URL("../images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg", import.meta.url).href,
-  },
-  {
-    name: "Colourful Storyteller Serving Dish",
-    maker: "ZIZIPHO POSWA · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Glazed ceramic · Hand-painted",
-    price: 425,
-    note: "A joyful serving dish shaped as a figurative storyteller and finished with bright colour.",
-    badge: "NEW",
-    image:
-      new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
-  },
-  {
-    name: "Carved Wooden Tumbler Set",
-    maker: "IMBALI WOODCRAFT COLLECTIVE · MPUMALANGA, ZA",
-    type: "KITCHENWARE",
-    material: "Carved wood · 6-piece set",
-    price: 396,
-    note: "Lightweight wooden tumblers with a smooth finish for everyday drinks and gatherings.",
-    badge: "NEW",
-    image:
-      new URL("../images/Handcrafted/mugset.jpg", import.meta.url).href,
-  },
-  {
-    name: "Heart-shaped Succulent Planters",
-    maker: "RIALHEIM STUDIO · ROBERTSON, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Handmade clay · 9-piece set",
-    price: 899,
-    note: "Playful heart-shaped planters made for small succulents, herbs and sunny windowsills.",
-    badge: "HANDCRAFTED",
-    image:
-      new URL("../images/Handcrafted/potplants.jpg", import.meta.url).href,
-  },
-  {
-    name: "Leather & Wax-print Pouch",
-    maker: "DITIRO MASHIGO · JOHANNESBURG, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Leather & printed textile · Zip pouch",
-    price: 420,
-    note: "A compact handmade pouch combining soft leather with a bold botanical wax-print panel.",
-    badge: "LIMITED",
-    image:
-      new URL("../images/Handcrafted/purse.jpg", import.meta.url).href,
-  },
-  {
-    name: "South African Beaded Mug",
-    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Glass beads & ceramic · Single mug",
-    price: 175,
-    note: "A bold mug wrapped in hand-stitched beadwork inspired by South African colour and pattern.",
-    badge: "RECYCLED",
-    image:
-      new URL("../images/Handcrafted/SA-rank.jpg", import.meta.url).href,
-  },
-  {
-    name: "Beaded Market Craft Display",
-    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Glass beads & wire · Hand-assembled",
-    price: 1750,
-    note: "A vibrant handmade display of beaded vessels and wire animals from a local craft market.",
-    badge: "POPULAR",
-    image:
-      new URL("../images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg", import.meta.url).href,
-  },
-];
+const products = ref([]);
+const isLoading = ref(true);
+const loadError = ref(false);
 
 const filteredProducts = computed(() =>
   activeCategory.value === "ALL"
-    ? products
-    : products.filter((product) => product.type === activeCategory.value),
+    ? products.value
+    : products.value.filter((product) => product.type === activeCategory.value),
 );
+
+async function loadProducts() {
+  isLoading.value = true;
+  loadError.value = false;
+  try {
+    const items = await getHandcraft();
+    products.value = items.map((item) => ({
+      name: item.name,
+      maker: `${item.creator_name} · ${item.creator_location}`,
+      type: item.product_type?.toUpperCase() || "HANDCRAFT",
+      material: item.material,
+      price: Number(item.price),
+      oldPrice: item.old_price ? Number(item.old_price) : undefined,
+      note: item.description,
+      badge: item.badge,
+      image: resolveImageUrl(item.image_url),
+    }));
+  } catch (error) {
+    console.error(error);
+    loadError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+onMounted(loadProducts);
+
 const cartCount = computed(() =>
   cartItems.value.reduce((total, item) => total + item.quantity, 0),
 );
@@ -221,16 +129,17 @@ function removeItem(item) {
       <a class="logo" href="/">
         <img class="brand-logo" :src="logo" alt="Artisan Hub" />
       </a>
-      <label class="search-box"
-        ><span class="sr-only">Search handcrafts</span
-        ><input
+      <label class="search-box">
+        <span class="sr-only">Search handcrafts</span>
+        <input
           type="search"
           placeholder="Search handcrafts, artwork..."
-        /><span class="search-icon">⌕</span></label
-      >
+        />
+        <span class="search-icon">⌕</span>
+      </label>
       <nav class="main-nav" aria-label="Main navigation">
-        <a class="active" href="/handcraft">Handcrafted</a
-        ><a href="/handmade">Handmade</a><a href="/artwork">Artwork</a>
+        <a class="active" href="/handcraft">Handcrafted</a>
+        <a href="/handmade">Handmade</a><a href="/artwork">Artwork</a>
         <a href="/creators">Creators</a><a href="/about">About Us</a>
       </nav>
       <button
@@ -261,17 +170,18 @@ function removeItem(item) {
           <div v-else class="bag-item-image-placeholder">ARTISAN</div>
           <div class="bag-item-info">
             <p>{{ getItemName(item) }}</p>
-            <small>{{ item.maker || item.artist || getItemType(item) }} · Qty {{ item.quantity }}</small
-            ><strong>{{ money(getPrice(item) * item.quantity) }}</strong>
+            <small>{{ item.maker || item.artist || getItemType(item) }} · Qty {{ item.quantity }}</small>
+            <strong>{{ money(getPrice(item) * item.quantity) }}</strong>
             <div class="quantity-controls">
               <button
                 type="button"
                 aria-label="Decrease quantity"
                 @click="changeQuantity(item, -1)"
               >
-                −</button
-              ><span>{{ item.quantity }}</span
-              ><button
+                −
+              </button>
+              <span>{{ item.quantity }}</span>
+              <button
                 type="button"
                 aria-label="Increase quantity"
                 @click="changeQuantity(item, 1)"
@@ -295,8 +205,8 @@ function removeItem(item) {
         <div>
           <span>Total</span><strong>{{ money(cartTotal) }}</strong>
         </div>
-        <button type="button" @click="$router.push({ name: 'landing', hash: '#checkout' })">CHECKOUT</button
-        ><button
+        <button type="button" @click="$router.push({ name: 'landing', hash: '#checkout' })">CHECKOUT</button>
+        <button
           class="continue-button"
           type="button"
           @click="$router.push('/')"
@@ -366,7 +276,12 @@ function removeItem(item) {
             </button>
           </div>
         </div>
-        <div class="product-grid">
+        <p v-if="isLoading" class="loading-state">Loading pieces...</p>
+        <div v-else-if="loadError" class="error-state">
+          <p>Couldn't load pieces right now. Please try again later.</p>
+          <button type="button" @click="loadProducts">Retry</button>
+        </div>
+        <div v-else-if="filteredProducts.length" class="product-grid">
           <article
             v-for="product in filteredProducts"
             :key="product.name"
@@ -374,9 +289,10 @@ function removeItem(item) {
           >
             <div class="product-image">
               <img :src="product.image" :alt="product.name" /><span
+                v-if="product.badge"
                 class="product-badge"
-                >{{ product.badge }}</span
-              ><button
+                >{{ product.badge }}</span>
+              <button
                 class="add-button"
                 type="button"
                 @click="addToCart(product)"
@@ -388,12 +304,13 @@ function removeItem(item) {
             <h3>{{ product.name }}</h3>
             <p class="material">{{ product.material }}</p>
             <div class="price-line">
-              <strong>{{ money(product.price) }}</strong
-              ><del v-if="product.oldPrice">{{ money(product.oldPrice) }}</del>
+              <strong>{{ money(product.price) }}</strong>
+              <del v-if="product.oldPrice">{{ money(product.oldPrice) }}</del>
             </div>
             <p class="description">{{ product.note }}</p>
           </article>
         </div>
+        <p v-else class="empty-state">No pieces found in this category.</p>
       </section>
     </main>
 
@@ -407,18 +324,18 @@ function removeItem(item) {
       </div>
       <div>
         <p class="footer-title">SHOP</p>
-        <a href="#products">Handcrafted</a><a href="#products">Artwork</a
-        ><a href="#products">New Arrivals</a><a href="#products">Sale</a>
+        <a href="#products">Handcrafted</a><a href="#products">Artwork</a>
+        <a href="#products">New Arrivals</a><a href="#products">Sale</a>
       </div>
       <div>
         <p class="footer-title">COMPANY</p>
-        <a href="#about">About Us</a><a href="#creators">How It Works</a
-        ><a href="#creators">For Makers</a><a href="#about">Press</a>
+        <a href="#about">About Us</a><a href="#creators">How It Works</a>
+        <a href="#creators">For Makers</a><a href="#about">Press</a>
       </div>
       <div>
         <p class="footer-title">HELP</p>
-        <a href="#about">Shipping &amp; Returns</a><a href="#about">FAQ</a
-        ><a href="#about">Contact</a><a href="#about">Track Order</a>
+        <a href="#about">Shipping &amp; Returns</a><a href="#about">FAQ</a>
+        <a href="#about">Contact</a><a href="#about">Track Order</a>
       </div>
     </footer>
   </div>
@@ -839,9 +756,6 @@ function removeItem(item) {
   margin: 7px 0 35px;
   color: #9e806e;
   letter-spacing: 0.16em;
-}
-.bag-count {
-  position: absolute;
 }
 .bag-backdrop {
   position: fixed;
