@@ -17,3 +17,12 @@
   flex: 1;
 }
 </style>
+
+<script setup>
+import { onMounted } from "vue";
+import { restoreAuthSession } from "./cartStore";
+
+onMounted(() => {
+  restoreAuthSession();
+});
+</script>

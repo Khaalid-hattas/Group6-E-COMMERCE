@@ -56,8 +56,32 @@
             />
           </div>
 
-          <button type="submit" class="btn btn--primary btn--block">
-            {{ role === "buyer" ? "Log In to Shop" : "Log In to Dashboard" }}
+          <p
+            v-if="errorMessage"
+            style="
+              color: #b3261e;
+              background: #fdecea;
+              padding: 10px 14px;
+              border-radius: 6px;
+              font-size: 0.85rem;
+              margin-bottom: 16px;
+            "
+          >
+            {{ errorMessage }}
+          </p>
+
+          <button
+            type="submit"
+            class="btn btn--primary btn--block"
+            :disabled="isSubmitting"
+          >
+            {{
+              isSubmitting
+                ? "Logging in…"
+                : role === "buyer"
+                  ? "Log In to Shop"
+                  : "Log In to Dashboard"
+            }}
           </button>
         </form>
 
@@ -81,17 +105,34 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { addPendingCartItem, signIn } from "../cartStore";
+import { addPendingCartItem, setAuthSession } from "../cartStore";
+import { loginRequest } from "@/api/authApi";
 
-const role = ref("buyer");
+const role = ref("buyer"); // UI copy only — backend returns the real role
 const form = reactive({ email: "", password: "" });
 const route = useRoute();
 const router = useRouter();
+const isSubmitting = ref(false);
+const errorMessage = ref("");
 
-function handleLogin() {
-  console.log("Login payload:", { role: role.value, ...form });
-  signIn();
-  addPendingCartItem();
-  router.push(route.query.redirect || "/");
+async function handleLogin() {
+  errorMessage.value = "";
+  isSubmitting.value = true;
+
+  try {
+    // Login doesn't send `role` — the backend looks the user up by
+    // email and returns whatever role is actually on their account.
+    const data = await loginRequest({
+      email: form.email,
+      password: form.password,
+    });
+    setAuthSession(data.token, data.user);
+    addPendingCartItem();
+    router.push(route.query.redirect || "/");
+  } catch (err) {
+    errorMessage.value = err.message;
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>

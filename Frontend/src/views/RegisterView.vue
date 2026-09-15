@@ -144,11 +144,31 @@
             </div>
           </template>
 
-          <button type="submit" class="btn btn--primary btn--block">
+          <p
+            v-if="errorMessage"
+            style="
+              color: #b3261e;
+              background: #fdecea;
+              padding: 10px 14px;
+              border-radius: 6px;
+              font-size: 0.85rem;
+              margin-bottom: 16px;
+            "
+          >
+            {{ errorMessage }}
+          </p>
+
+          <button
+            type="submit"
+            class="btn btn--primary btn--block"
+            :disabled="isSubmitting"
+          >
             {{
-              role === "buyer"
-                ? "Create Buyer Account"
-                : "Create Creator Account"
+              isSubmitting
+                ? "Creating account…"
+                : role === "buyer"
+                  ? "Create Buyer Account"
+                  : "Create Creator Account"
             }}
           </button>
         </form>
@@ -171,7 +191,8 @@
 <script setup>
 import { ref, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { addPendingCartItem, signIn } from "../cartStore";
+import { addPendingCartItem, setAuthSession } from "../cartStore";
+import { registerRequest } from "@/api/authApi";
 
 const route = useRoute();
 const router = useRouter();
@@ -189,6 +210,9 @@ const form = reactive({
   bio: "",
 });
 
+const isSubmitting = ref(false);
+const errorMessage = ref("");
+
 // Clear role-specific fields when switching to avoid submitting stale data
 watch(role, () => {
   form.address = "";
@@ -199,24 +223,33 @@ watch(role, () => {
   form.bio = "";
 });
 
-function handleRegister() {
+async function handleRegister() {
+  errorMessage.value = "";
+  isSubmitting.value = true;
+
+  // The backend's users.role only accepts 'customer' or 'creator' — the
+  // UI's "buyer" tab maps to 'customer' here. address/interest aren't
+  // part of the backend's register contract yet (customers table only
+  // stores phone), so they're collected in the UI but not sent.
   const payload = {
-    role: role.value,
-    fullName: form.fullName,
+    full_name: form.fullName,
     email: form.email,
     password: form.password,
-    ...(role.value === "buyer"
-      ? { address: form.address, interest: form.interest }
-      : {
-          studioName: form.studioName,
-          craftCategory: form.craftCategory,
-          location: form.location,
-          bio: form.bio,
-        }),
+    role: role.value === "buyer" ? "customer" : "creator",
+    ...(role.value === "creator"
+      ? { studio_name: form.studioName, location: form.location, bio: form.bio }
+      : {}),
   };
-  console.log("Register payload:", payload);
-  signIn();
-  addPendingCartItem();
-  router.push(route.query.redirect || "/");
+
+  try {
+    const data = await registerRequest(payload);
+    setAuthSession(data.token, data.user);
+    addPendingCartItem();
+    router.push(route.query.redirect || "/");
+  } catch (err) {
+    errorMessage.value = err.message;
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>
