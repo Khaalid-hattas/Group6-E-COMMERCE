@@ -1,5 +1,6 @@
 <script setup>
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { getCreators } from "./api";
 import { resolveImageUrl } from "./imageAssets";
 import logo from "./assets/artisanhub-logo.png";
@@ -13,7 +14,8 @@ import {
 } from "./cartStore";
 
 const activeFilter = ref("ALL");
-const creatorSearch = ref("");
+const route = useRoute();
+const creatorSearch = ref(String(route.query.search || ""));
 const selectedCreator = ref(null);
 const requestCreator = ref(null);
 const submitted = ref(false);
@@ -22,6 +24,13 @@ const bagOpen = ref(false);
 const creators = ref([]);
 const isLoading = ref(true);
 const loadError = ref(false);
+
+watch(
+  () => route.query.search,
+  (search) => {
+    creatorSearch.value = String(search || "");
+  },
+);
 
 const creatorImagePaths = {
   "Zizipho Poswa": "/images/Handcrafted/kitchenset.jpg",

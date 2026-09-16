@@ -46,7 +46,7 @@ async function loginUser(req, res) {
             { id: user.id, role: user.role },
             process.env.JWT_SECRET,
             {
-                expiresIn: process.env.JWT_EXPIRES_IN || '2h'
+                expiresIn: process.env.JWT_EXPIRES_IN
             }
         );
 

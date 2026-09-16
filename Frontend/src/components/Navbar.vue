@@ -4,8 +4,14 @@
       <img class="brand-logo" :src="logo" alt="Artisan Hub" />
     </router-link>
     <label class="search-box">
-      <span class="sr-only">Search handcrafts</span>
-      <input type="search" placeholder="Search handcrafts, artwork..." />
+      <span class="sr-only">Search creators</span>
+      <input
+        v-model="creatorSearch"
+        type="search"
+        placeholder="Search creators..."
+        aria-label="Search creators"
+        @keyup.enter="searchCreators"
+      />
       <span class="search-icon">⌕</span>
     </label>
     <nav class="main-nav" aria-label="Main navigation">
@@ -74,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import logo from "../assets/artisanhub-logo.png";
 import {
@@ -94,6 +100,22 @@ import {
 const cartOpen = ref(false);
 const route = useRoute();
 const router = useRouter();
+const creatorSearch = ref(String(route.query.search || ""));
+
+watch(
+  () => route.query.search,
+  (search) => {
+    creatorSearch.value = String(search || "");
+  },
+);
+
+function searchCreators() {
+  const search = creatorSearch.value.trim();
+  router.push({
+    path: "/creators",
+    query: search ? { search } : {},
+  });
+}
 
 function changeQuantity(item, amount) {
   changeCartQuantity(item, amount);

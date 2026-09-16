@@ -56,10 +56,6 @@
             />
           </div>
 
-          <button type="submit" class="btn btn--primary btn--block">
-            {{ role === "buyer" ? "Log In to Shop" : "Log In to Dashboard" }}
-
-            </button>
           <p
             v-if="errorMessage"
             style="
@@ -110,22 +106,32 @@
 import { ref, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { addPendingCartItem, signIn } from "../cartStore";
+import { loginRequest } from "../api/authApi";
 
 const role = ref("buyer");
 const form = reactive({ email: "", password: "" });
 const route = useRoute();
 const router = useRouter();
+const isSubmitting = ref(false);
+const errorMessage = ref("");
 
-function handleLogin() {
-  const user = {
-    email: form.email,
-    role: role.value,
-    fullName: form.email.split("@")[0],
-  };
+async function handleLogin() {
+  isSubmitting.value = true;
+  errorMessage.value = "";
 
-  console.log("Login payload:", { role: role.value, ...form });
-  signIn(null, user);
-  addPendingCartItem();
-  router.push(route.query.redirect || "/");
+  try {
+    const data = await loginRequest({
+      email: form.email,
+      password: form.password,
+    });
+
+    signIn(data.token, data.user);
+    addPendingCartItem();
+    router.push(route.query.redirect || "/");
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>

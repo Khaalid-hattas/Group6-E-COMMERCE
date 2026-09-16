@@ -144,17 +144,20 @@
             </div>
           </template>
 
-          <button type="submit" class="btn btn--primary btn--block">
+          <p
+            v-if="errorMessage"
+            style="color: #b3261e; background: #fdecea; padding: 10px 14px; border-radius: 6px; font-size: 0.85rem; margin-bottom: 16px;"
+          >
+            {{ errorMessage }}
+          </p>
+          <button type="submit" class="btn btn--primary btn--block" :disabled="isSubmitting">
             {{
-              role === "buyer"
+              isSubmitting
+                ? "Creating account…"
+                : role === "buyer"
                 ? "Create Buyer Account"
                 : "Create Creator Account"
-                
             }}
-
-
-
-
           </button>
         </form>
 
@@ -209,24 +212,33 @@ watch(role, () => {
   form.bio = "";
 });
 
-function handleRegister() {
+async function handleRegister() {
+  isSubmitting.value = true;
+  errorMessage.value = "";
+
   const payload = {
-    role: role.value,
-    fullName: form.fullName,
+    role: role.value === "buyer" ? "customer" : "creator",
+    full_name: form.fullName,
     email: form.email,
     password: form.password,
     ...(role.value === "buyer"
-      ? { address: form.address, interest: form.interest }
+      ? { phone: null }
       : {
-          studioName: form.studioName,
-          craftCategory: form.craftCategory,
+          studio_name: form.studioName,
           location: form.location,
           bio: form.bio,
         }),
   };
-  console.log("Register payload:", payload);
-  signIn(null, payload);
-  addPendingCartItem();
-  router.push(route.query.redirect || "/");
+
+  try {
+    const data = await registerRequest(payload);
+    signIn(data.token, data.user);
+    addPendingCartItem();
+    router.push(route.query.redirect || "/");
+  } catch (error) {
+    errorMessage.value = error.message;
+  } finally {
+    isSubmitting.value = false;
+  }
 }
 </script>

@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import db from "../src/config/db.js";
+import db from "../config/db.js";
 
 const VALID_ROLES = ["customer", "creator"];
 
@@ -63,7 +63,7 @@ export async function registerUser(req, res) {
       { id: result.insertId, role },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_EXPIRES_IN || "2h",
+        expiresIn: process.env.JWT_EXPIRES_IN,
       },
     );
     return res

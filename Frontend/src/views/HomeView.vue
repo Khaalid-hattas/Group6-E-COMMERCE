@@ -71,7 +71,7 @@
           :key="category.name"
           class="category-card motion-card"
           :style="{ '--card-delay': `${index * 120}ms` }"
-          to="/login"
+          :to="category.path"
           @pointermove="handleCardPointerMove"
           @pointerleave="resetCardPointer"
         >
@@ -263,14 +263,17 @@ function resetCardPointer(event) {
 const categories = ref([
   {
     name: "Artwork",
+    path: "/artwork",
     image: new URL("../../images/Artwork/abstractimages.jpeg", import.meta.url).href,
   },
   {
     name: "Hand-Crafted",
+    path: "/handcraft",
     image: new URL("../../images/Handcrafted/antique-set.jpg", import.meta.url).href,
   },
   {
     name: "Hand-made",
+    path: "/handmade",
     image: new URL("../../images/Handmade/beadwork-necklace.jpg", import.meta.url).href,
   },
 ]);

@@ -3,7 +3,7 @@ import {
   getUserProfile,
   updateUserProfile,
 } from "../controllers/userController.js";
-import { authMiddleware } from "../../middelware/authMiddleware.js";
+import { authMiddleware } from "../middelware/authMiddleware.js";
 
 const router = Router();
 
