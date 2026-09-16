@@ -1,9 +1,9 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import db from "../config/db.js";
-import registerRoutes from "../routes/registerRoutes.js";
-import loginRoutes from "../routes/loginRoutes.js";
+import db from "./config/db.js";
+import registerRoutes from "./routes/registerRoutes.js";
+import loginRoutes from "./routes/loginRoutes.js";
 import creatorRoutes from "./routes/creatorRoutes.js";
 import artworkRoutes from "./routes/artworkRoutes.js";
 import handcraftRoutes from "./routes/handcraftRoutes.js";

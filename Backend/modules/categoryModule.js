@@ -1,4 +1,4 @@
-import { query } from "../confiq/db.js";
+import { query } from "../config/db.js";
 
 /**
  * Get all categories

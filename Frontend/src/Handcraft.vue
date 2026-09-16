@@ -1,8 +1,10 @@
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import logo from "./assets/artisanhub-logo.png";
 import Navbar from "./components/Navbar.vue";
+import { getHandcraft } from "./api";
+import { resolveImageUrl } from "./imageAssets";
 import {
   addCartItem,
   savePendingCartItem,
@@ -19,166 +21,52 @@ const activeCategory = ref("ALL");
 const cartOpen = ref(false);
 const router = useRouter();
 
-const makers = [
-  {
-    name: "NESTA NALA",
-    piece: "Hand-turned African Vessel Set",
-    location: "KWAZULU-NATAL, ZA",
-    detail: "Handbuilt ceramics · Contemporary African forms",
-    image: new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
-  },
-  {
-    name: "Zizipho Poswa",
-    piece: "Hand-painted Ceramic Kitchen Set",
-    location: "CAPE TOWN, ZA",
-    detail: "Ceramics & sculpture · Imiso Ceramics",
-    image: new URL("../images/Handcrafted/kitchenset.jpg", import.meta.url).href,
-  },
-  {
-    name: "ZIZIPHO POSWA",
-    piece: "Colourful Storyteller Serving Dish",
-    location: " CAPE TOWN, ZA",
-    detail: "Traditional basketry · Handwoven grass vessels",
-    image: new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
-  },
-  {
-    name: "BEAUTY NGXONGO",
-    piece: "Handwoven Basket Set",
-    location: "KWAZULU-NATAL, ZA",
-    detail: "Handmade jewellery · Augenta founder",
-    image: new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
-  },
-];
+const makers = ref([]);
+const products = ref([]);
+const isLoading = ref(true);
+const loadError = ref(false);
 
-const products = [
-  {
-    name: "Hand-turned African Vessel Set",
-    maker: "NESTA NALA · KWAZULU-NATAL, ZA",
-    type: "KITCHENWARE",
-    material: "Hand-turned clay · 3-piece set",
-    price: 148,
-    note: "Three sculptural vessels with burnished surfaces and individual hand-finished marks.",
-    badge: "HANDCRAFTED",
-    image:
-      new URL("../images/Handcrafted/antique-set.jpg", import.meta.url).href,
-  },
-  {
-    name: "Handwoven Basket Set",
-    maker: "BEAUTY NGXONGO · KWAZULU-NATAL, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Indigenous fibre · 3-piece set",
-    price: 420,
-    note: "Nested baskets woven by hand for storage, serving and everyday display.",
-    badge: "NEW",
-    image:
-      new URL("../images/Handcrafted/basket.jpg", import.meta.url).href,
-  },
-  {
-    name: "Wood & Woven Coaster Set",
-    maker: "DESIGN AFRIKA WEAVERS · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Wood & woven fibre · 6-piece set",
-    price: 950,
-    note: "Warm wooden coasters finished with woven centres and a hand-built holder.",
-    badge: "SALE",
-    oldPrice: 680,
-    image:
-      new URL("../images/Handcrafted/costerset.jpg", import.meta.url).href,
-  },
-  {
-    name: "Handcrafted Wooden Desk Organiser",
-    maker: "CARROL BOYES STUDIO · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Solid wood · Phone, watch & key holder",
-    price: 1350,
-    note: "A practical entryway organiser with handmade compartments for daily essentials.",
-    badge: "KITCHENWARE",
-    image:
-      new URL("../images/Handcrafted/Essential-holder.jpg", import.meta.url).href,
-  },
-  {
-    name: "African Market Tableware Collection",
-    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Hand-painted ceramic · Mixed set",
-    price: 1200,
-    note: "A colourful collection of handmade tableware inspired by South African craft markets.",
-    badge: "POPULAR",
-    image:
-      new URL("../images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg", import.meta.url).href,
-  },
-  {
-    name: "Colourful Storyteller Serving Dish",
-    maker: "ZIZIPHO POSWA · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Glazed ceramic · Hand-painted",
-    price: 425,
-    note: "A joyful serving dish shaped as a figurative storyteller and finished with bright colour.",
-    badge: "NEW",
-    image:
-      new URL("../images/Handcrafted/handcrafted-dish.webp", import.meta.url).href,
-  },
-  {
-    name: "Carved Wooden Tumbler Set",
-    maker: "IMBALI WOODCRAFT COLLECTIVE · MPUMALANGA, ZA",
-    type: "KITCHENWARE",
-    material: "Carved wood · 6-piece set",
-    price: 396,
-    note: "Lightweight wooden tumblers with a smooth finish for everyday drinks and gatherings.",
-    badge: "NEW",
-    image:
-      new URL("../images/Handcrafted/mugset.jpg", import.meta.url).href,
-  },
-  {
-    name: "Heart-shaped Succulent Planters",
-    maker: "RIALHEIM STUDIO · ROBERTSON, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Handmade clay · 9-piece set",
-    price: 899,
-    note: "Playful heart-shaped planters made for small succulents, herbs and sunny windowsills.",
-    badge: "HANDCRAFTED",
-    image:
-      new URL("../images/Handcrafted/potplants.jpg", import.meta.url).href,
-  },
-  {
-    name: "Leather & Wax-print Pouch",
-    maker: "DITIRO MASHIGO · JOHANNESBURG, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Leather & printed textile · Zip pouch",
-    price: 420,
-    note: "A compact handmade pouch combining soft leather with a bold botanical wax-print panel.",
-    badge: "LIMITED",
-    image:
-      new URL("../images/Handcrafted/purse.jpg", import.meta.url).href,
-  },
-  {
-    name: "South African Beaded Mug",
-    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
-    type: "KITCHENWARE",
-    material: "Glass beads & ceramic · Single mug",
-    price: 175,
-    note: "A bold mug wrapped in hand-stitched beadwork inspired by South African colour and pattern.",
-    badge: "RECYCLED",
-    image:
-      new URL("../images/Handcrafted/SA-rank.jpg", import.meta.url).href,
-  },
-  {
-    name: "Beaded Market Craft Display",
-    maker: "UMTHA CRAFTSWOMEN · CAPE TOWN, ZA",
-    type: "RECYCLED CRAFTS",
-    material: "Glass beads & wire · Hand-assembled",
-    price: 1750,
-    note: "A vibrant handmade display of beaded vessels and wire animals from a local craft market.",
-    badge: "POPULAR",
-    image:
-      new URL("../images/Handcrafted/Gemini_Generated_Image_nvg711nvg711nvg7.jpg", import.meta.url).href,
-  },
-];
+async function loadHandcraft() {
+  isLoading.value = true;
+  loadError.value = false;
+  try {
+    const items = await getHandcraft();
+    products.value = items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      maker: [item.creator_name, item.creator_location].filter(Boolean).join(" · "),
+      type: item.product_type?.toUpperCase() || "HANDCRAFTED",
+      material: item.material || "Handmade craft",
+      price: Number(item.price || 0),
+      note: item.description || "",
+      badge: item.status?.toUpperCase() || "HANDCRAFTED",
+      image: resolveImageUrl(item.image_url),
+    }));
+
+    makers.value = products.value.reduce((result, product) => {
+      if (!result.some((maker) => maker.name === product.maker)) {
+        result.push({
+          name: product.maker || "Independent maker",
+          piece: product.name,
+          location: "",
+          detail: product.material,
+          image: product.image,
+        });
+      }
+      return result;
+    }, []).slice(0, 4);
+  } catch (error) {
+    console.error(error);
+    loadError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+}
 
 const filteredProducts = computed(() =>
   activeCategory.value === "ALL"
-    ? products
-    : products.filter((product) => product.type === activeCategory.value),
+    ? products.value
+    : products.value.filter((product) => product.type === activeCategory.value),
 );
 const cartCount = computed(() =>
   cartItems.value.reduce((total, item) => total + item.quantity, 0),
@@ -212,6 +100,8 @@ function changeQuantity(item, amount) {
 function removeItem(item) {
   removeCartItem(item);
 }
+
+onMounted(loadHandcraft);
 </script>
 
 <template>
@@ -366,7 +256,12 @@ function removeItem(item) {
             </button>
           </div>
         </div>
-        <div class="product-grid">
+        <p v-if="isLoading" class="loading-state">Loading handcrafted goods...</p>
+        <div v-else-if="loadError" class="error-state">
+          <p>Couldn't load handcrafted goods right now.</p>
+          <button type="button" @click="loadHandcraft">Retry</button>
+        </div>
+        <div v-else-if="filteredProducts.length" class="product-grid">
           <article
             v-for="product in filteredProducts"
             :key="product.name"
@@ -394,6 +289,7 @@ function removeItem(item) {
             <p class="description">{{ product.note }}</p>
           </article>
         </div>
+        <p v-else class="empty-state">No handcrafted goods found.</p>
       </section>
     </main>
 
