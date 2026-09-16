@@ -302,19 +302,19 @@ onMounted(loadHandcraft);
         </p>
       </div>
       <div>
-        <p class="footer-title">SHOP</p>
-        <a href="#products">Handcrafted</a><a href="#products">Artwork</a>
-        <a href="#products">New Arrivals</a><a href="#products">Sale</a>
+        <p class="footer-title">NAVIGATION</p>
+        <router-link to="/">Home</router-link>
+        <router-link to="/handcraft">Handcrafted</router-link>
       </div>
       <div>
-        <p class="footer-title">COMPANY</p>
-        <a href="#about">About Us</a><a href="#creators">How It Works</a>
-        <a href="#creators">For Makers</a><a href="#about">Press</a>
+        <p class="footer-title">EXPLORE</p>
+        <router-link to="/handmade">Handmade</router-link>
+        <router-link to="/artwork">Artwork</router-link>
       </div>
       <div>
-        <p class="footer-title">HELP</p>
-        <a href="#about">Shipping &amp; Returns</a><a href="#about">FAQ</a>
-        <a href="#about">Contact</a><a href="#about">Track Order</a>
+        <p class="footer-title">COMMUNITY</p>
+        <router-link to="/creators">Creators</router-link>
+        <router-link to="/about">About Us</router-link>
       </div>
     </footer>
   </div>

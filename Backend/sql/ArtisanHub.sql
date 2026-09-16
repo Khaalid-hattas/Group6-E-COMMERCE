@@ -1651,3 +1651,9 @@ WHERE name IN (
     'Beaded Drop Earrings', 'Hand-thrown Terracotta Vase', 'Jute Rope Woven Vase',
     'Hand-carved Story Sculpture', 'Botanical Pressed Wall Art'
 );
+
+SELECT COUNT(*) FROM artwork;
+SELECT COUNT(*) FROM handcraft;
+SELECT COUNT(*) FROM handmade;
+
+SELECT name, image_url FROM artwork;
