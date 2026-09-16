@@ -58,6 +58,34 @@
 
           <button type="submit" class="btn btn--primary btn--block">
             {{ role === "buyer" ? "Log In to Shop" : "Log In to Dashboard" }}
+
+            </button>
+          <p
+            v-if="errorMessage"
+            style="
+              color: #b3261e;
+              background: #fdecea;
+              padding: 10px 14px;
+              border-radius: 6px;
+              font-size: 0.85rem;
+              margin-bottom: 16px;
+            "
+          >
+            {{ errorMessage }}
+          </p>
+
+          <button
+            type="submit"
+            class="btn btn--primary btn--block"
+            :disabled="isSubmitting"
+          >
+            {{
+              isSubmitting
+                ? "Logging in…"
+                : role === "buyer"
+                  ? "Log In to Shop"
+                  : "Log In to Dashboard"
+            }}
           </button>
         </form>
 

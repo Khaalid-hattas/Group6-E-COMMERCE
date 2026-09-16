@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import db from '../config/db.js';
 
 async function loginUser(req, res) {
@@ -41,9 +42,18 @@ async function loginUser(req, res) {
             });
         }
 
+        const token = jwt.sign(
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET,
+            {
+                expiresIn: process.env.JWT_EXPIRES_IN || '2h'
+            }
+        );
+
         // Successful login
         return res.status(200).json({
             message: 'Login successful',
+            token,
             user: {
                 id: user.id,
                 full_name: user.full_name,

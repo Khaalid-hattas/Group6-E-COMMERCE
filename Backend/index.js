@@ -4,6 +4,8 @@ import cors from "cors";
 import db from "./config/db.js";
 import registerRoutes from "./routes/registerRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import creatorRoutes from "./routes/creatorRoutes.js";
 import artworkRoutes from "./routes/artworkRoutes.js";
 import handcraftRoutes from "./routes/handcraftRoutes.js";
@@ -37,6 +39,9 @@ app.get("/api/test-db", async (_req, res) => {
 
 app.use("/api", registerRoutes);
 app.use("/api", loginRoutes);
+// Keep the newer auth URLs, including the authenticated /me endpoint.
+app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/creators", creatorRoutes);
 app.use("/api/artwork", artworkRoutes);
 app.use("/api/handcraft", handcraftRoutes);
@@ -45,6 +50,13 @@ app.use("/api/handmade", handmadeRoutes);
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
+
+try {
+  await db.query("SELECT 1");
+  console.log("Connected to the ArtisanHub MySQL database successfully.");
+} catch (error) {
+  console.error("Database connection failed:", error.message);
+}
 
 app.listen(port, () => {
   console.log(`ArtisanHub backend listening on http://localhost:${port}`);

@@ -149,7 +149,12 @@
               role === "buyer"
                 ? "Create Buyer Account"
                 : "Create Creator Account"
+                
             }}
+
+
+
+
           </button>
         </form>
 
@@ -172,6 +177,8 @@
 import { ref, reactive, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { addPendingCartItem, signIn } from "../cartStore";
+import { registerRequest } from "@/api/authApi";
+
 
 const route = useRoute();
 const router = useRouter();
@@ -188,6 +195,9 @@ const form = reactive({
   location: "",
   bio: "",
 });
+
+const isSubmitting = ref(false);
+const errorMessage = ref("");
 
 // Clear role-specific fields when switching to avoid submitting stale data
 watch(role, () => {
