@@ -1,7 +1,10 @@
 // src/api/authApi.js
 // Matches Phase 13's table: Register, Login, Account, Profile update.
 
-const BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:5000").replace(/\/$/, "");
+const BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://group6-e-commerce-production.up.railway.app"
+).replace(/\/api\/?$/, "").replace(/\/$/, "");
 
 async function request(path, { method = "GET", body, token } = {}) {
   const headers = { "Content-Type": "application/json" };
