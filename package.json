@@ -2,8 +2,9 @@
   "name": "group6-e-commerce",
   "private": true,
   "scripts": {
+    "build": "npm --prefix Frontend install && npm --prefix Frontend run build",
+    "start": "npm --prefix Backend start",
     "dev": "npm --prefix Frontend run dev",
-    "build": "npm --prefix Frontend run build",
     "preview": "npm --prefix Frontend run preview"
   }
 }
