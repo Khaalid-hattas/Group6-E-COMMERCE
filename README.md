@@ -1,38 +1,62 @@
-# CraftSphere
+# Artisanhub group6 e-commerce
 
-This template should help get you started developing with Vue 3 in Vite.
+Welcome to the **Group 6 E-Commerce** repository! This project is a fully-featured e-commerce application designed to provide a seamless online shopping experience for users
+---
 
-## Recommended IDE Setup
+## Table of Contents
+- [About The Project]
+- [Key Features]
+- [Tech Stack]
+- [Team Members]
+- [Project Structure]
+- [Getting Started]
+- [Usage]
+- [Contributing]
+- [License]
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+---
 
-## Recommended Browser Setup
+##  About The Project
+The objective of this project is to build a robust, scalable, and user-friendly e-commerce platform. Group 6 collaborated to implement end-to-end shopping workflows—from user authentication and product browsing to secure checkout and order tracking.
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+---
 
-## Customize configuration
+##  Key Features
+* **User Authentication & Authorization:** Secure sign-up, login, and role-based access (Customer vs. Admin).
+* **Product Catalog:** Browse, search, and filter products by categories, price, or keywords.
+* **Shopping Cart & Wishlist:** Add items, update quantities, and save products for later.
+* **Checkout & Payment:** Seamless transition to placing orders.
+* **Admin Dashboard:** Manage inventory, add/remove products, and track customer orders.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
+---
 
-## Project Setup
+##  Tech Stack
+* **Frontend:** *(e.g., vue.js/ HTML / CSS / JavaScript /)*
+* **Backend:** *(e.g., Node.js / Express / CORS)*
+* **Database:** *(e.g.,/ MySQL /)*
+* **Version Control:** Git & GitHub
 
-```sh
-npm install
-```
+---
 
-### Compile and Hot-Reload for Development
+## 👥 Team Members (Group 6)
 
-```sh
-npm run dev
-```
+| Name | Role / Responsibilities | GitHub Profile |
+| :--- | :--- | :--- |
+| **Khaalid Hattas** | Project Lead / Full-Stack Development | [https://github.com/Khaalid-hattas] |
+| **Busiswa Bala** | Co Project lead / Fullstack Development| [https://github.com/Busiswabala] |
+| **Aviv Arendse** | / Documentation / Frontend Development| [https://github.com/avivarendse] |
+| **Phumezile Sibeko** | Backend lead/ ui/ux helper /  | [https://github.com/phumezilesibeko] |
 
-### Compile and Minify for Production
 
-```sh
-npm run build
-```
+---
+
+## 📁 Project Structure
+
+Group6-E-COMMERCE/
+│
+├── Backend/           
+├── Frontend/           
+├── node_modules/         
+├── .gitignore/          
+├── jsonconfiq.json       
+└── README.md        
