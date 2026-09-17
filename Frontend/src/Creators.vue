@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { getCreators } from "./api";
 import { resolveImageUrl } from "./imageAssets";
@@ -20,6 +20,14 @@ const selectedCreator = ref(null);
 const requestCreator = ref(null);
 const submitted = ref(false);
 const bagOpen = ref(false);
+const requestForm = reactive({
+  name: "",
+  email: "",
+  type: "",
+  budget: "",
+  neededBy: "",
+  vision: "",
+});
 
 const creators = ref([]);
 const isLoading = ref(true);
@@ -116,6 +124,14 @@ onMounted(loadCreators);
 function openRequest(creator) {
   requestCreator.value = creator;
   submitted.value = false;
+  Object.assign(requestForm, {
+    name: "",
+    email: "",
+    type: creator.tags?.[0] || "",
+    budget: "",
+    neededBy: "",
+    vision: "",
+  });
 }
 
 function changeQuantity(item, amount) {
@@ -149,6 +165,27 @@ const bagTotal = computed(() =>
 );
 
 function submitRequest() {
+  submitted.value = true;
+}
+
+function sendCommissionRequest() {
+  const whatsappMessage = [
+    "CUSTOM COMMISSION REQUEST",
+    "",
+    `Creator: ${requestCreator.value.name}`,
+    `Customer: ${requestForm.name}`,
+    `Email: ${requestForm.email}`,
+    `Type of piece: ${requestForm.type}`,
+    `Budget: R ${requestForm.budget}`,
+    `Needed by: ${requestForm.neededBy || "Not specified"}`,
+    `Vision: ${requestForm.vision}`,
+  ].join("\\n");
+
+  window.open(
+    `https://wa.me/27659259446?text=${encodeURIComponent(whatsappMessage)}`,
+    "_blank",
+    "noopener,noreferrer",
+  );
   submitted.value = true;
 }
 </script>
@@ -577,7 +614,7 @@ function submitRequest() {
       class="overlay modal-overlay"
       @click.self="requestCreator = null"
     >
-      <form class="request-modal" @submit.prevent="submitRequest">
+      <form class="request-modal" @submit.prevent="sendCommissionRequest">
         <button
           class="close-button"
           type="button"
@@ -593,13 +630,13 @@ function submitRequest() {
           <b>{{ requestCreator.lead }}</b>
         </p>
         <div class="form-row">
-          <label>YOUR NAME *<input required placeholder="Full name" /></label
+          <label>YOUR NAME *<input v-model="requestForm.name" required placeholder="Full name" /></label
           ><label
-            >EMAIL *<input required type="email" placeholder="you@email.com"
+            >EMAIL *<input v-model="requestForm.email" required type="email" placeholder="you@email.com"
           /></label>
         </div>
         <label
-          >TYPE OF PIECE *<select required>
+          >TYPE OF PIECE *<select v-model="requestForm.type" required>
             <option value="">Select...</option>
             <option v-for="tag in requestCreator.tags" :key="tag">
               {{ tag }}
@@ -608,19 +645,19 @@ function submitRequest() {
         >
         <div class="form-row">
           <label
-            >BUDGET (£) *<input
+            >BUDGET (R) *<input v-model="requestForm.budget"
               required
               type="number"
               :placeholder="`Min. ${requestCreator.from}`" /></label
-          ><label>NEEDED BY<input type="date" /></label>
+          ><label>NEEDED BY<input v-model="requestForm.neededBy" type="date" /></label>
         </div>
         <label
-          >DESCRIBE YOUR VISION *<textarea
+          >DESCRIBE YOUR VISION *<textarea v-model="requestForm.vision"
             required
             placeholder="Dimensions, materials, colour, intended use, any references..."
           ></textarea></label
-        ><button class="submit-button" type="submit">
-          {{ submitted ? "REQUEST SENT" : "SEND COMMISSION REQUEST" }}
+        ><button class="submit-button" type="submit" :disabled="submitted">
+          {{ submitted ? "WHATSAPP OPENED" : "SEND COMMISSION REQUEST" }}
         </button>
         <p class="form-note">
           We'll share your brief with {{ requestCreator.name }} and follow up
