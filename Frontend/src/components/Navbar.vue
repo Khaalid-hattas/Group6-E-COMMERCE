@@ -14,13 +14,13 @@
       />
       <span class="search-icon">⌕</span>
     </label>
-    <nav class="main-nav" aria-label="Main navigation">
-      <router-link :class="{ active: route.path === '/' }" to="/">Home</router-link>
-      <router-link :class="{ active: route.path === '/handcraft' || route.path === '/marketplace' }" to="/handcraft">Handcrafted</router-link>
-      <router-link :class="{ active: route.path === '/handmade' }" to="/handmade">Handmade</router-link>
-      <router-link :class="{ active: route.path === '/artwork' }" to="/artwork">Artwork</router-link>
-      <router-link :class="{ active: route.path === '/creators' }" to="/creators">Creators</router-link>
-      <router-link :class="{ active: route.path === '/about' }" to="/about">About Us</router-link>
+    <nav id="main-navigation" class="main-nav" aria-label="Main navigation" :class="{ 'is-open': menuOpen }">
+      <router-link :class="{ active: route.path === '/' }" to="/" @click="closeMenu">Home</router-link>
+      <router-link :class="{ active: route.path === '/handcraft' || route.path === '/marketplace' }" to="/handcraft" @click="closeMenu">Handcrafted</router-link>
+      <router-link :class="{ active: route.path === '/handmade' }" to="/handmade" @click="closeMenu">Handmade</router-link>
+      <router-link :class="{ active: route.path === '/artwork' }" to="/artwork" @click="closeMenu">Artwork</router-link>
+      <router-link :class="{ active: route.path === '/creators' }" to="/creators" @click="closeMenu">Creators</router-link>
+      <router-link :class="{ active: route.path === '/about' }" to="/about" @click="closeMenu">About Us</router-link>
     </nav>
     <div class="nav-right">
       <template v-if="isAuthenticated">
@@ -37,6 +37,18 @@
         @click="cartOpen = true"
       >
         ♧<span v-if="cartCount" class="bag-count">{{ cartCount }}</span>
+      </button>
+      <button
+        class="menu-button"
+        type="button"
+        aria-label="Toggle navigation menu"
+        aria-controls="main-navigation"
+        :aria-expanded="menuOpen"
+        @click="menuOpen = !menuOpen"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
       </button>
     </div>
   </header>
@@ -80,7 +92,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import logo from "../assets/artisanhub-logo.png";
 import {
@@ -98,6 +110,7 @@ import {
 } from "../cartStore";
 
 const cartOpen = ref(false);
+const menuOpen = ref(false);
 const route = useRoute();
 const router = useRouter();
 const creatorSearch = ref(String(route.query.search || ""));
@@ -108,6 +121,22 @@ watch(
     creatorSearch.value = String(search || "");
   },
 );
+
+watch(
+  () => route.path,
+  () => closeMenu(),
+);
+
+function closeMenu() {
+  menuOpen.value = false;
+}
+
+function handleEscape(event) {
+  if (event.key === "Escape") closeMenu();
+}
+
+onMounted(() => window.addEventListener("keydown", handleEscape));
+onUnmounted(() => window.removeEventListener("keydown", handleEscape));
 
 function searchCreators() {
   const search = creatorSearch.value.trim();
@@ -145,6 +174,24 @@ function money(amount) {
   align-items: center;
   gap: 12px;
   margin-left: auto;
+}
+
+.menu-button {
+  display: none;
+  width: 42px;
+  height: 42px;
+  padding: 9px;
+  border: 1px solid #d9d0c4;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--ink);
+}
+
+.menu-button span {
+  display: block;
+  height: 2px;
+  margin: 4px 0;
+  background: currentColor;
 }
 
 .user-chip {
@@ -313,5 +360,73 @@ function money(amount) {
 
 .bag-footer .continue-button {
   border: 0;
+}
+
+@media (max-width: 900px) {
+  :global(.site-header) {
+    height: 72px;
+    padding: 0 16px;
+    gap: 12px;
+  }
+
+  :global(.logo) {
+    min-width: 0;
+  }
+
+  :global(.brand-logo) {
+    width: 56px;
+    height: 56px;
+  }
+
+  :global(.search-box) {
+    display: none;
+  }
+
+  .menu-button {
+    display: block;
+  }
+
+  :global(.main-nav) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding: 8px 16px 16px;
+    border-bottom: 1px solid var(--line);
+    background: var(--paper);
+    box-shadow: 0 12px 24px rgba(32, 11, 7, 0.1);
+  }
+
+  :global(.main-nav.is-open) {
+    display: flex;
+  }
+
+  :global(.main-nav a) {
+    padding: 13px 8px;
+    border-bottom: 1px solid rgba(222, 213, 199, 0.7);
+  }
+
+  :global(.main-nav a:last-child) {
+    border-bottom: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .user-chip {
+    display: none;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .nav-auth-btn {
+    padding: 5px 9px;
+  }
 }
 </style>
