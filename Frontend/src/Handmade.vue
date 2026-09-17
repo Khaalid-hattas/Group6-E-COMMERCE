@@ -242,10 +242,13 @@ const cartTotal = computed(() =>
             <li>Gift packaging included</li>
           </ul>
         </div>
-        <div class="hero-collage" aria-label="Handmade jewellery and ornaments">
-          <div class="hero-image hero-image-main"></div>
-          <div class="hero-image hero-image-top"></div>
-          <div class="hero-image hero-image-bottom"></div>
+        <div class="handmade-hero-images" aria-label="Handmade jewellery and ornaments">
+          <div class="hero-image">
+            <img
+              src="https://earthafricacurio.com/images/stories/virtuemart/product/african-beaded-necklace-sibaya-gold-red-black5.jpg"
+              alt="South African handmade jewellery"
+            />
+          </div>
         </div>
       </section>
       <section class="feature-strip">
@@ -411,6 +414,12 @@ const cartTotal = computed(() =>
 </template>
 
 <style scoped>
+.handmade-page {
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
 .handmade-page > .site-header {
   display: none;
 }

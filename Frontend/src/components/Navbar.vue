@@ -3,7 +3,7 @@
     <router-link class="logo" to="/">
       <img class="brand-logo" :src="logo" alt="Artisan Hub" />
     </router-link>
-    <label class="search-box">
+    <label class="search-box desktop-search-box">
       <span class="sr-only">Search creators</span>
       <input
         v-model="creatorSearch"
@@ -12,9 +12,20 @@
         aria-label="Search creators"
         @keyup.enter="searchCreators"
       />
-      <span class="search-icon">⌕</span>
+      <button class="search-icon" type="button" aria-label="Search creators" @click="searchCreators">⌕</button>
     </label>
     <nav id="main-navigation" class="main-nav" aria-label="Main navigation" :class="{ 'is-open': menuOpen }">
+      <label class="search-box mobile-search-box">
+        <span class="sr-only">Search creators</span>
+        <input
+          v-model="creatorSearch"
+          type="search"
+          placeholder="Search creators..."
+          aria-label="Search creators"
+          @keyup.enter="searchCreators"
+        />
+        <button class="search-icon" type="button" aria-label="Search creators" @click="searchCreators">⌕</button>
+      </label>
       <router-link :class="{ active: route.path === '/' }" to="/" @click="closeMenu">Home</router-link>
       <router-link :class="{ active: route.path === '/handcraft' || route.path === '/marketplace' }" to="/handcraft" @click="closeMenu">Handcrafted</router-link>
       <router-link :class="{ active: route.path === '/handmade' }" to="/handmade" @click="closeMenu">Handmade</router-link>
@@ -44,7 +55,7 @@
         aria-label="Toggle navigation menu"
         aria-controls="main-navigation"
         :aria-expanded="menuOpen"
-        @click="menuOpen = !menuOpen"
+        @click.stop="toggleMenu"
       >
         <span></span>
         <span></span>
@@ -123,7 +134,7 @@ watch(
 );
 
 watch(
-  () => route.path,
+  () => route.fullPath,
   () => closeMenu(),
 );
 
@@ -131,12 +142,24 @@ function closeMenu() {
   menuOpen.value = false;
 }
 
+function toggleMenu() {
+  menuOpen.value = !menuOpen.value;
+}
+
 function handleEscape(event) {
   if (event.key === "Escape") closeMenu();
 }
 
+function handleResize() {
+  if (window.innerWidth > 1400) closeMenu();
+}
+
 onMounted(() => window.addEventListener("keydown", handleEscape));
-onUnmounted(() => window.removeEventListener("keydown", handleEscape));
+onMounted(() => window.addEventListener("resize", handleResize));
+onUnmounted(() => {
+  window.removeEventListener("keydown", handleEscape);
+  window.removeEventListener("resize", handleResize);
+});
 
 function searchCreators() {
   const search = creatorSearch.value.trim();
@@ -192,6 +215,17 @@ function money(amount) {
   height: 2px;
   margin: 4px 0;
   background: currentColor;
+}
+
+.mobile-search-box {
+  display: none;
+}
+
+.search-icon {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
 }
 
 .user-chip {
@@ -362,7 +396,7 @@ function money(amount) {
   border: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1400px) {
   :global(.site-header) {
     height: 72px;
     padding: 0 16px;
@@ -378,7 +412,15 @@ function money(amount) {
     height: 56px;
   }
 
-  :global(.search-box) {
+  :global(.desktop-search-box) {
+    display: block;
+    flex: 1;
+    width: auto;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  :global(.mobile-search-box) {
     display: none;
   }
 
@@ -391,7 +433,7 @@ function money(amount) {
     top: 100%;
     left: 0;
     right: 0;
-    display: none;
+    display: none !important;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
@@ -403,7 +445,8 @@ function money(amount) {
   }
 
   :global(.main-nav.is-open) {
-    display: flex;
+    display: flex !important;
+    z-index: 11;
   }
 
   :global(.main-nav a) {
@@ -413,6 +456,18 @@ function money(amount) {
 
   :global(.main-nav a:last-child) {
     border-bottom: 0;
+  }
+}
+
+@media (max-width: 700px) {
+  :global(.desktop-search-box) {
+    display: none;
+  }
+
+  :global(.mobile-search-box) {
+    display: block;
+    width: 100%;
+    margin: 0 0 8px;
   }
 }
 
