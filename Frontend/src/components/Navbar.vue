@@ -15,7 +15,7 @@
       <button class="search-icon" type="button" aria-label="Search creators" @click="searchCreators">⌕</button>
     </label>
     <nav id="main-navigation" class="main-nav" aria-label="Main navigation" :class="{ 'is-open': menuOpen }">
-      <label class="search-box mobile-search-box">
+      <label class="search-box mobile-search-box menu-search-box">
         <span class="sr-only">Search creators</span>
         <input
           v-model="creatorSearch"
@@ -460,14 +460,25 @@ function money(amount) {
 }
 
 @media (max-width: 700px) {
+  :global(.site-header) {
+    height: auto;
+    min-height: 72px;
+    flex-wrap: wrap;
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+
   :global(.desktop-search-box) {
-    display: none;
+    display: block;
+    order: 3;
+    flex: 0 0 100%;
+    width: 100%;
+    max-width: none;
+    margin: 4px 0 0;
   }
 
   :global(.mobile-search-box) {
-    display: block;
-    width: 100%;
-    margin: 0 0 8px;
+    display: none;
   }
 }
 
