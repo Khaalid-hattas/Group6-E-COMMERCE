@@ -960,15 +960,7 @@ button {
   .product-image {
     height: 260px;
   }
-  .quick-add {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    opacity: 1;
-    transform: none;
-  }
-
+  .quick-add,
   .view-button {
     display: none;
   }
