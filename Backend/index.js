@@ -1,6 +1,8 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import db from "./config/db.js";
 import registerRoutes from "./routes/registerRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
@@ -13,9 +15,13 @@ import handmadeRoutes from "./routes/handmadeRoutes.js";
 
 const app = express();
 const port = Number(process.env.PORT) || 5000;
+const backendDir = path.dirname(fileURLToPath(import.meta.url));
+const frontendDist = path.resolve(backendDir, "../Frontend/dist");
 
 app.use(cors());
 app.use(express.json());
+// Serve the production frontend from the same Railway domain as the API.
+app.use(express.static(frontendDist));
 
 app.get("/", (_req, res) => {
   res.json({ name: "ArtisanHub API", status: "ok" });
@@ -46,6 +52,16 @@ app.use("/api/creators", creatorRoutes);
 app.use("/api/artwork", artworkRoutes);
 app.use("/api/handcraft", handcraftRoutes);
 app.use("/api/handmade", handmadeRoutes);
+
+// Support Vue Router history mode when the frontend is served by this backend.
+app.use((req, res, next) => {
+  if (req.method === "GET" && req.accepts("html") && frontendDist) {
+    return res.sendFile(path.join(frontendDist, "index.html"), (error) => {
+      if (error) next();
+    });
+  }
+  next();
+});
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found" });
